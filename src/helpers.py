@@ -15,6 +15,24 @@ from sklearn.metrics import roc_auc_score
 from sklearn.linear_model import LogisticRegression
 
 
+def get_NM(k, N1, N2):
+    """
+    Given input k, N, return lists N, M
+    """
+    N = np.ceil(np.logspace(N1, N2, 10)).astype(np.int32)
+
+    if k == 1:
+        M = N
+    elif k == 2:
+        M = np.ceil(N*np.log(np.log(N))).astype(np.int32)
+    elif k == 3:
+        M = np.ceil(N*np.log(N)).astype(np.int32)
+    elif k == 4:
+        M = np.ceil(N*N**.5).astype(np.int32)
+
+    return N, M
+
+
 def auc_avoid_unique_label(test_feat, test_label, beta_est_test):
     """
     If the test labels only contain 1 or -1.
