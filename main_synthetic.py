@@ -74,12 +74,13 @@ if __name__ == "__main__":
         X, XC, yn, y = get_data(N, M, beta, f_mean, f_cov)
         kt_dist = kt_distance(X, beta, e_beta)
         # Print and save results
-        print('i:%2i | N:%6i | M:%6i | Angle:%.3f | Norm:%.3f | KT:%.3f' % (i, N, M, err_angle, err_norm, kt_dist))
+        print('i:%2i | N:%6i | M:%6i | Angle:%.3f | Norm:%.3f | KT:%.3f'
+              % (i, N, M, err_angle, err_norm, kt_dist))
         results[N]['err_angle'] = err_angle
         results[N]['err_norm'] = err_norm
         results[N]['kt_dist'] = kt_dist
     results['seed'] = args.seed
-    results['ld'] = ld 
+    results['ld'] = ld
     results['d'] = d
     results['k'] = k
     results['method'] = method

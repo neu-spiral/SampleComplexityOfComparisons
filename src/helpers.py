@@ -1,7 +1,8 @@
 """
 Helper codes
 """
-from random import sample
+import pickle
+from pathlib import Path
 import numpy as np
 
 
@@ -20,12 +21,10 @@ def save_results(results):
     k = results['k']
     method = results['method']
     # Find path to home dir
-    from pathlib import Path
     home_path = str(Path.home())
     file_path = home_path + '/SCResults/%i-%.2f-%i-%i-%i-%i-%i' \
         % (seed, ld, d, N1, N2, k, method)
     # Write to disk
-    import pickle
     with open(file_path, 'wb+') as f:
         pickle.dump(results, f)
 
