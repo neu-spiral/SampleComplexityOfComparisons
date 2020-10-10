@@ -1,15 +1,19 @@
 #!/bin/bash
 
-for exp in {1..2}
+for seed in {0..9..1}
+do
+    for ld in 0.01 0.5 1
     do
-	# from 0 up to and including 9 with steps 1
-    for seed in {0..9..1} 
-        do
         for d in {10..1010..200}
         do
-			work=/scratch/kadioglu.b/
-			cd $work
-			sbatch --job-name=${algorithm:(-1)}.$seed.${N:(-1)} --output=z.out --error=z.err single.bash $algorithm $seed $N
+            for k in 1 2 3 4
+            do
+                for method in 1 2
+                do
+                    sbatch --job-name=$seed$ld$d$k$method --output=z.out --error=z.err single.bash $seed $ld $d $d 1e4 $k $method
+                done
+
             done
         done
     done
+done

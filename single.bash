@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=18Gb
+#SBATCH --mem=16Gb
 #SBATCH --time=0-08:00:00
 #SBATCH --partition=short
 
-srun python main_synthethic.py $1 $2 $3 $4 $5 $6 $7 $8
+srun python main_synthethic.py $1 $2 $3 $4 $5 $6 $7

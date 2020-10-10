@@ -11,12 +11,18 @@ def save_results(results):
     """
     # Stop default behaviour
     results = dict(results)
-    exp = results['exp']
     seed = results['seed']
+    ld = results['ld']
+    d = results['d']
+    N1 = results['N1']
+    N2 = results['N2']
+    k = results['k']
+    method = results['method']
     # Find path to home dir
     from pathlib import Path
     home_path = str(Path.home())
-    file_path = home_path + '/SCResults/%i.%i' % (exp, seed)
+    file_path = home_path + '/SCResults/%i-%.2f-%i-%i-%i-%i-%i' \
+        % (seed, ld, d, N1, N2, k, method)
     # Write to disk
     import pickle
     with open(file_path, 'wb+') as f:

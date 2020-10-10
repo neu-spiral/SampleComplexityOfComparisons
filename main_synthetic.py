@@ -18,7 +18,6 @@ def parse_args():
     Parse args and do simple computations if necessary
     """
     parser = ArgumentParser(description='Run synthetic experiments.')
-    parser.add_argument('exp', type=int, help='Experiment id.')
     parser.add_argument('seed', type=int, help='Random seed.')
     parser.add_argument('ld', type=float,
                         help='Lambda d. Min eig value of data' +
@@ -79,7 +78,6 @@ if __name__ == "__main__":
         results[N]['err_angle'] = err_angle
         results[N]['err_norm'] = err_norm
         results[N]['kt_dist'] = kt_dist
-    results['exp'] = args.exp
     results['seed'] = args.seed
     results['ld'] = ld 
     results['d'] = d
