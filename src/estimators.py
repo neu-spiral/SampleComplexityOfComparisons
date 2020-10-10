@@ -2,6 +2,8 @@
 Methods for estimating beta from pairwise comparisons
 """
 import numpy as np
+from sklearn.linear_model import LogisticRegression as logistic_reg
+
 
 def averaging(X, XC, yn):
     """
@@ -21,11 +23,17 @@ def averaging(X, XC, yn):
 
     return e_beta
 
+
 def logistic(XC, yn):
     """
     Estimate beta by logistic regression over comparison labels
     """
-    pass
+    # C infty implies no regularization
+    model = logistic_reg(C=np.inf, fit_intercept=False, solver="newton-cg")
+    model.fit(XC, yn)
+    beta_est = model.coef_[0]
+    return beta_est
+
 
 def estimate_beta(X, XC, yn, method):
     """

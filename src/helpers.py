@@ -14,6 +14,10 @@ from sklearn.metrics import roc_auc_score
 from sklearn.linear_model import LogisticRegression
 
 
+def get_f_name(args):
+    pass
+
+
 def get_c1(beta, f_cov):
     """
     Estimate c1 = 4E[sigmoid'(beta^T(X-Y))]
@@ -56,7 +60,7 @@ def get_f_stats(d, ld):
 
 def get_NM(k, N1, N2):
     """
-    Given input k, N, return lists N, M
+    Given input k, N1, N2, return arrays N, M
     """
     N = np.ceil(np.logspace(N1, N2, 10)).astype(np.int32)
 
@@ -163,24 +167,6 @@ def normalize_data_matrix(data):
     normalized_data = centralized_data / std
 
     return normalized_data
-
-
-def estimate_beta_by_averaging(feat, label):
-    """
-    This function output an estimated beta by inpued with feature and label.
-    Input:
-          - feat (N,d) nd array. N is the number of data samples
-          - label (N,1) nd array. Each element is either (1 or -1).
-    Output:
-          - beta_est (d,1) nd array. The average of Sigma_est^{-1}*y_i*x_i.
-    """
-    if len(label.shape) == 1:
-        label = 1 * label[:, np.newaxis]
-    else:
-        label = 1 * label
-    y_x_est = np.multiply(feat, label).T
-    beta_est = np.mean(y_x_est, axis=1)[:, np.newaxis]
-    return beta_est
 
 
 def estimate_beta_by_MLE(feat, labels):

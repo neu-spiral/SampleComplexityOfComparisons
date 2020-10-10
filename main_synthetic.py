@@ -3,11 +3,12 @@ Main file for running sample complexity experiments
 """
 import random
 from argparse import ArgumentParser
+from time import time
 import numpy as np
 from src.helpers import get_NM, get_f_stats
 from src.data import gen_data
 from src.estimators import estimate_beta
-from src.loss import beta_error
+from src.loss import beta_error, kt_distance
 
 
 def parse_args():
@@ -35,6 +36,7 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
     np.random.seed(args.seed)
+    np.seterr(over='ignore')
     random.seed(args.seed)
     ld = args.ld
     d = args.d
@@ -52,6 +54,7 @@ if __name__ == "__main__":
 
     # This for can be run embarrasingly parallel.
     # But I'm embarrassingly lazy to do that.
+    t0 = time()
     for i, N in enumerate(Ns):
         M = Ms[i]
         # Sample data
@@ -60,6 +63,12 @@ if __name__ == "__main__":
         e_beta = estimate_beta(X, XC, yn, method)
         # Calculate error of beta
         err_angle, err_norm = beta_error(e_beta, beta, f_cov)
-        print(err_angle, err_norm)
-        # Test beta on new data by kendall tau correlation
+        # Test estimated beta on new data with kendall tau correlation
+        X, XC, yn, y = gen_data(N, M, beta, f_mean, f_cov)
+        kt_dist = kt_distance(X, beta, e_beta)
+        print(err_angle)
+        print(kt_dist)
+        print('====')
         # Write results to disk appropriately
+
+    print('Finished in %.2f seconds.' % (time() - t0))
