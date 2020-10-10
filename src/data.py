@@ -1,48 +1,28 @@
 """
 Data generation and reading related
 """
-
 from random import choices
-
 import numpy as np
-from src.helpers import gen_tour
 
 
-def gen_data(ld, d, N, M, beta):
+def gen_data(N, M, beta, f_mean, f_cov):
     """
-    Generates d dimensional gaussian vectors with random mean and covariance.
-    Lambda d, i.e. minimum eigen value is ld, max is 1, other are u.a.r.
-    Uniformly at random pairwise comparisons are chosen for M comparisons.
+    Generates d dimensional gaussian vectors.
+    Uniformly at random pairwise comparisons are chosen.
     Labels are generated with Bradley Terry model.
     """
-    # Feature mean
-    f_mean = np.random.rand(d)*10 - 5
-
-    basis = np.random.randn(d, d)
-    # Orthonormal basis as columns
-    basis, _ = np.linalg.qr(basis)
-    eigen_values = np.linspace(ld, 1, d)
-    # Feature covariance with eigen value composition
-    f_cov = basis*eigen_values @ basis.T
-
-    # Data for statistics estimation, i.e. covariance estimation
+    # Data for covariance estimation
     X = np.random.multivariate_normal(f_mean, f_cov, N)
 
     # Data for comparisons
     X1 = np.random.multivariate_normal(f_mean, f_cov, N)
 
-    # Sample edges
-    all_edges = gen_tour(N)
-    for n in range(N):
-        all_edges.append((n, n))
-    # Uniformly at random edges from all possible edges
-    edges = choices(all_edges, k=M)
+    # Uniformly at random edges
+    vertices = list(range(N))
+    u = choices(vertices, k=M)
+    v = choices(vertices, k=M)
 
-    # An edge from u to v
-    # implies v beats u
-    u = [e[0] for e in edges]
-    v = [e[1] for e in edges]
-
+    # An edge from u to v implies v beats u
     # Comparison features
     XC = X1[v] - X1[u]
 
@@ -53,7 +33,7 @@ def gen_data(ld, d, N, M, beta):
     # Uniform random variables
     urv = np.random.rand(M)
     # BTL Labels
-    yn = np.sign(urv - p)
+    yn = np.sign(p - urv)
     # True labels
     y = np.sign(scores)
 
