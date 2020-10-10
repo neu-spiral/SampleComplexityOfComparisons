@@ -14,8 +14,9 @@ def save_results(results):
     seed = results['seed']
     ld = results['ld']
     d = results['d']
-    N1 = results['N1']
-    N2 = results['N2']
+    Ns = results['Ns']
+    N1 = Ns[0]
+    N2 = Ns[-1]
     k = results['k']
     method = results['method']
     # Find path to home dir
@@ -73,6 +74,8 @@ def get_NM(k, N1, N2):
     """
     Given input k, N1, N2, return arrays N, M
     """
+    N1 = np.log10(N1)
+    N2 = np.log10(N2)
     N = np.ceil(np.logspace(N1, N2, 10)).astype(np.int32)
 
     if k == 1:

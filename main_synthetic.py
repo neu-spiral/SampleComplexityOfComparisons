@@ -23,8 +23,8 @@ def parse_args():
                         help='Lambda d. Min eig value of data' +
                         ' covariance where max is 1.')
     parser.add_argument('d', type=int, help='Dimensionality.')
-    parser.add_argument('N1', type=int, help='Smalles N is 10**N1')
-    parser.add_argument('N2', type=int, help='Largest N is 10**N2')
+    parser.add_argument('N1', type=int, help='Smallest N')
+    parser.add_argument('N2', type=int, help='Largest N')
     parser.add_argument('k', type=int, choices=[1, 2, 3, 4],
                         help='Defines M. 1: N, 2: NloglogN' +
                         ', 3: NlogN, 4: N*sqrt(N).')
