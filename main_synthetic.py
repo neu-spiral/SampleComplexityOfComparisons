@@ -1,12 +1,14 @@
 """
-Main file for running sample complexity experiments
+Main file for running
+synthethic sample complexity experiments
 """
 import random
 from argparse import ArgumentParser
+from collections import defaultdict
 from time import time
 import numpy as np
-from src.helpers import get_NM, get_f_stats
-from src.data import gen_data
+from src.helpers import get_NM, get_f_stats, save_results
+from src.data import get_data
 from src.estimators import estimate_beta
 from src.loss import beta_error, kt_distance
 
@@ -15,7 +17,8 @@ def parse_args():
     """
     Parse args and do simple computations if necessary
     """
-    parser = ArgumentParser(description='Runs synthetic experiments.')
+    parser = ArgumentParser(description='Run synthetic experiments.')
+    parser.add_argument('exp', type=int, help='Experiment id.')
     parser.add_argument('seed', type=int, help='Random seed.')
     parser.add_argument('ld', type=float,
                         help='Lambda d. Min eig value of data' +
@@ -34,17 +37,22 @@ def parse_args():
 
 
 if __name__ == "__main__":
+    # Get inputs (parameters)
     args = parse_args()
+    ld = args.ld
+    d = args.d
+    N1 = args.N1
+    N2 = args.N2
+    k = args.k
+    method = args.method
+    # Set global variables
     np.random.seed(args.seed)
     np.seterr(over='ignore')
     random.seed(args.seed)
-    ld = args.ld
-    d = args.d
-    k = args.k
-    N1 = args.N1
-    N2 = args.N2
-    method = args.method
+    # Outputs (results)
+    results = defaultdict(dict)
 
+    # Start Experiment
     # Get N and M values
     Ns, Ms = get_NM(k, N1, N2)
 
@@ -58,17 +66,27 @@ if __name__ == "__main__":
     for i, N in enumerate(Ns):
         M = Ms[i]
         # Sample data
-        X, XC, yn, y = gen_data(N, M, beta, f_mean, f_cov)
+        X, XC, yn, y = get_data(N, M, beta, f_mean, f_cov)
         # Estimate beta
         e_beta = estimate_beta(X, XC, yn, method)
         # Calculate error of beta
         err_angle, err_norm = beta_error(e_beta, beta, f_cov)
-        # Test estimated beta on new data with kendall tau correlation
-        X, XC, yn, y = gen_data(N, M, beta, f_mean, f_cov)
+        # Test e_beta on new data for kendall tau
+        X, XC, yn, y = get_data(N, M, beta, f_mean, f_cov)
         kt_dist = kt_distance(X, beta, e_beta)
-        print(err_angle)
-        print(kt_dist)
-        print('====')
-        # Write results to disk appropriately
-
+        # Print and save results
+        print('i:%2i | N:%6i | M:%6i | Angle:%.3f | Norm:%.3f | KT:%.3f' % (i, N, M, err_angle, err_norm, kt_dist))
+        results[N]['err_angle'] = err_angle
+        results[N]['err_norm'] = err_norm
+        results[N]['kt_dist'] = kt_dist
+    results['exp'] = args.exp
+    results['seed'] = args.seed
+    results['ld'] = ld 
+    results['d'] = d
+    results['k'] = k
+    results['method'] = method
+    results['Ns'] = Ns
+    results['Ms'] = Ms
+    # Save results to disk
+    save_results(results)
     print('Finished in %.2f seconds.' % (time() - t0))

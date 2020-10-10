@@ -5,7 +5,7 @@ from random import choices
 import numpy as np
 
 
-def gen_data(N, M, beta, f_mean, f_cov):
+def get_data(N, M, beta, f_mean, f_cov):
     """
     Generates d dimensional gaussian vectors.
     Uniformly at random pairwise comparisons are chosen.

@@ -2,7 +2,7 @@
 Loss functions of interest
 """
 import numpy as np
-from src.helpers import get_c1
+from helpers import get_c1
 
 
 def beta_error(e_beta, beta, f_cov):
