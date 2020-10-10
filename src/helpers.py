@@ -1,32 +1,44 @@
 """
 Helper codes
 """
+from os import path
 import pickle
 from pathlib import Path
 import numpy as np
 
 
-def save_results(results):
+def check_exp(args):
+    """
+    If experiment is already finished, stop early.
+    """
+    file_path = get_exp_path(args)
+    if not path.exists(file_path):
+        return
+    else:
+        raise Exception('%s exists.' % file_path)
+
+
+def save_results(results, args):
     """
     Save results dict in disk.
     """
-    # Stop default behaviour
-    results = dict(results)
-    seed = results['seed']
-    ld = results['ld']
-    d = results['d']
-    Ns = results['Ns']
-    N1 = Ns[0]
-    N2 = Ns[-1]
-    k = results['k']
-    method = results['method']
+    # Get file path to write
+    file_path = get_exp_path(args)
+    # Write to disk
+    with open(file_path, 'wb+') as f:
+        pickle.dump(dict(results), f)
+
+
+def get_exp_path(args):
+    """
+    Generate file path for current experiment.
+    """
     # Find path to home dir
     home_path = str(Path.home())
     file_path = home_path + '/SCResults/%i-%.2f-%i-%i-%i-%i-%i' \
-        % (seed, ld, d, N1, N2, k, method)
-    # Write to disk
-    with open(file_path, 'wb+') as f:
-        pickle.dump(results, f)
+        % (args.seed, args.ld, args.d, args.N1, args.N2, args.k, args.method)
+
+    return file_path
 
 
 def get_c1(beta, f_cov):

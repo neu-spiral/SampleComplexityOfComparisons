@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 from collections import defaultdict
 from time import time
 import numpy as np
-from src.helpers import get_NM, get_f_stats, save_results
+from src.helpers import get_NM, get_f_stats, save_results, check_exp
 from src.data import get_data
 from src.estimators import estimate_beta
 from src.loss import beta_error, kt_distance
@@ -51,7 +51,8 @@ if __name__ == "__main__":
     # Outputs (results)
     results = defaultdict(dict)
 
-    # Start Experiment
+    # Start Experiment if not already finished
+    check_exp(args)
     # Get N and M values
     Ns, Ms = get_NM(k, N1, N2)
 
@@ -69,12 +70,12 @@ if __name__ == "__main__":
         # Estimate beta
         e_beta = estimate_beta(X, XC, yn, method)
         # Calculate error of beta
-        err_angle, err_norm = beta_error(e_beta, beta, f_cov)
+        err_angle, err_norm = beta_error(e_beta, beta, f_cov, method)
         # Test e_beta on new data for kendall tau
         X, XC, yn, y = get_data(N, M, beta, f_mean, f_cov)
         kt_dist = kt_distance(X, beta, e_beta)
         # Print and save results
-        print('i:%2i | N:%6i | M:%6i | Angle:%.3f | Norm:%.3f | KT:%.3f'
+        print('i:%2i | N:%6i | M:%10i | Angle:%.3f | Norm:%.3f | KT:%.3f'
               % (i, N, M, err_angle, err_norm, kt_dist))
         results[N]['err_angle'] = err_angle
         results[N]['err_norm'] = err_norm
@@ -87,5 +88,5 @@ if __name__ == "__main__":
     results['Ns'] = Ns
     results['Ms'] = Ms
     # Save results to disk
-    save_results(results)
+    save_results(results, args)
     print('Finished in %.2f seconds.' % (time() - t0))
