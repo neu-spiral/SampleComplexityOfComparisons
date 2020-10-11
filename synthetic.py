@@ -72,7 +72,7 @@ if __name__ == "__main__":
         # Calculate error of beta
         err_angle, err_norm = beta_error(e_beta, beta, f_cov, method)
         # Test e_beta on new data for kendall tau
-        X, XC, yn, y = get_data(N, M, beta, f_mean, f_cov)
+        X, XC, yn, y = get_data(500, 1, beta, f_mean, f_cov)
         kt_dist = kt_distance(X, beta, e_beta)
         # Print and save results
         print('i:%2i | N:%6i | M:%10i | Angle:%.3f | Norm:%.3f | KT:%.3f'

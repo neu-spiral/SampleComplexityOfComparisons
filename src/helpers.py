@@ -1,10 +1,69 @@
 """
 Helper codes
 """
-from os import path
+from os import path, listdir
 import pickle
 from pathlib import Path
 import numpy as np
+
+
+def read_results(path):
+    """
+    Read path for experiment results
+    return in a dict
+    """
+    # Hard code metrics
+    metrics = ['err_angle', 'err_norm', 'kt_dist']
+    # Files in given path
+    files = listdir(path)
+    # IF ANY FILES ARE TO BE SKIPPED, ADD LINES HERE.
+    # Split by dash
+    sfiles = [f.split('-') for f in files]
+    # Different seed values
+    seeds = list({f[0] for f in sfiles})
+    # Different ld values
+    lds = list({f[1] for f in sfiles})
+    # Different d values
+    ds = list({f[2] for f in sfiles})
+    # Different k values
+    ks = list({f[-2] for f in sfiles})
+    # Different method values
+    methods = list({f[-1] for f in sfiles})
+    # Different N and M values for each d
+    Ns = {}
+    Ms = {}
+
+    # Form skeleton of results dict
+    results = {}
+    for seed in seeds:
+        results[seed] = {}
+        for ld in lds:
+            results[seed][ld] = {}
+            for d in ds:
+                results[seed][ld][d] = {}
+                for k in ks:
+                    results[seed][ld][d][k] = {}
+                    for method in methods:
+                        results[seed][ld][d][k][method] = {}
+                        for metric in metrics:
+                            results[seed][ld][d][k][method][metric] = None
+
+    for f in files:
+        seed, ld, d, _, _, k, method = f.split('-')
+
+        with open(path+f, 'rb') as fb:
+            resd = pickle.load(fb)  # Results dictionary
+
+        Ns[d] = resd['Ns']
+        Ms[d] = {k: resd['Ms']}
+
+        for metric in metrics:
+            metric_values = np.zeros(Ns[d].size)
+            for i, N in enumerate(resd['Ns']):
+                metric_values[i] = resd[N][metric]
+            results[seed][ld][d][k][method][metric] = metric_values
+
+    return seeds, lds, ds, Ns, Ms, ks, methods, metrics, results
 
 
 def check_exp(args):

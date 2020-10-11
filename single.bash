@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=64Gb
+#SBATCH --mem=128Gb
 #SBATCH --time=1-00:00:00
 #SBATCH --partition=short
 
