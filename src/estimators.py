@@ -29,7 +29,7 @@ def logistic(XC, yn):
     Estimate beta by logistic regression over comparison labels
     """
     # C infty implies no regularization
-    model = logistic_reg(C=np.inf, fit_intercept=False, solver="newton-cg")
+    model = logistic_reg(C=np.inf, fit_intercept=False, solver="lbfgs")
     model.fit(XC, yn)
     beta_est = model.coef_[0]
     return beta_est

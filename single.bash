@@ -4,4 +4,4 @@
 #SBATCH --time=1-00:00:00
 #SBATCH --partition=short
 
-srun python main_synthetic.py $1 $2 $3 $4 $5 $6 $7
+srun python synthetic.py $1 $2 $3 $4 $5 $6 $7

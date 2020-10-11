@@ -18,6 +18,7 @@ def plot_SNbM(path):
     N by metrics(d) for each ld, k, method, metric
     """
     seeds, lds, ds, Ns, _, ks, methods, metrics, results = read_results(path)
+    ds.sort()
 
     plt.rc('font', family='serif')
     for metric in metrics:
@@ -49,10 +50,10 @@ def plot_SNbM(path):
                     else:
                         label = r'$\tau(\hat\beta, \beta)$'
                         lim = 0.6
-                    ax.annotate(r'$N$', xy=(.95,0), xytext=(15, -5),
+                    ax.annotate(r'$N$', xy=(.95, 0), xytext=(15, -5),
                                 ha='left', va='top', xycoords='axes fraction',
                                 textcoords='offset points', fontsize=16)
-                    # plt.ylabel(label, fontsize=16)
+                    plt.ylabel(label, fontsize=16)
                     plt.xscale('log')
                     plt.ylim(0, lim)
                     plt.legend(loc=2, fontsize=10)
@@ -60,6 +61,7 @@ def plot_SNbM(path):
                     plt.savefig(path+'../Syn-%s-%s-%s-%s.pdf'
                                 % (metric, ld, k, method),
                                 format='pdf', transparent=True)
+                    plt.close()
 
 
 if __name__ == '__main__':

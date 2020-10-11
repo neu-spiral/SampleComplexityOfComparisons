@@ -7,6 +7,23 @@ from pathlib import Path
 import numpy as np
 
 
+def cv_edges(edges, K):
+    """
+    Given a list of (u, v) find K fold cv edges
+    [[tr1, te1], [tr2, te2], ...]
+    """
+    unq_nodes = {u for edge in edges for u in edge}
+    count = len(unq_nodes)
+    for i in range(K-1):
+        n1 = (i-1)*count//K
+        n2 = i*count//K
+        test_nodes = list(range(n1, n2))
+
+    cv_nodes = [range( for i in range(5)]
+
+
+
+
 def read_results(path):
     """
     Read path for experiment results
