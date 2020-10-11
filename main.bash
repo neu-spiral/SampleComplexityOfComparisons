@@ -1,4 +1,5 @@
 #!/bin/bash
+# 3x6x3x2 = 108
 
 for seed in {0..4..1}
 do
