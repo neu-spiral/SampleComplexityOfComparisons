@@ -28,7 +28,7 @@ def beta_error(e_beta, beta, f_cov, method):
     return err_angle, err_beta
 
 
-def kt_distance(scores, e_scores): # X, beta, e_beta):
+def kt_distance(scores, e_scores):
     """
     Kendall Tau distance
     Z pairs exist where for a pair i, j is

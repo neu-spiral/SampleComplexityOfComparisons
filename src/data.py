@@ -130,6 +130,7 @@ def split_sushi_data(K):
         print('For split %i, get stats_u, train_u...' % i)
         train_e, test_e = split
         train_u = get_unq_nodes(train_e)
+        print('Train edge count before stats/train split: %i' % len(train_e))
         N = len(train_u)//2
         stats_u = train_u[N:]
         train_u = train_u[:N]
@@ -139,8 +140,10 @@ def split_sushi_data(K):
                 continue
             else:
                 train_e.remove(edge)
+        test_u = get_unq_nodes(test_e)
+        print('Train edge count after split: %i' % len(train_e))
         with open(home_path + '/Data/sushi3-2016/split%i' % i, 'wb+') as f:
-            pickle.dump([stats_u, train_e, test_e], f)
+            pickle.dump([stats_u, train_e, test_u], f)
 
     with open(home_path + '/Data/sushi3-2016/features', 'wb+') as f:
         pickle.dump(X, f)
@@ -165,13 +168,27 @@ def get_sushi_fs():
     return a_feats, a_scrs
 
 
-def get_sushi_data(features, scores, cvk):
+def get_sushi_data(cvk, N):
     """
     Get sushi data from splits
     """
+    features, scores = get_sushi_fs()
+
     home_path = str(Path.home())
     with open(home_path + '/Data/sushi3-2016/split%i' % cvk, 'rb') as f:
-        stats_u, train_e, test_e = pickle.load(f)
+        stats_u, train_e, test_u = pickle.load(f)
+
+    stats_u = stats_u[:N]
+
+    unq_nodes = get_unq_nodes(train_e)
+    nodes_to_use = unq_nodes[:N]
+
+    for edge in train_e:
+        u, v = edge
+        if u in nodes_to_use and v in nodes_to_use:
+            continue
+        else:
+            train_e.remove(edge)
 
     X = features[stats_u]
 
@@ -183,7 +200,6 @@ def get_sushi_data(features, scores, cvk):
     yn = np.ones(M)
     yn[M//2:] *= -1
 
-    test_u = get_unq_nodes(test_e)
     test_X = features[test_u]
     scores = scores[test_u]
 
@@ -191,4 +207,5 @@ def get_sushi_data(features, scores, cvk):
 
 
 if __name__ == '__main__':
+    np.random.seed(1)
     split_sushi_data(K=5)

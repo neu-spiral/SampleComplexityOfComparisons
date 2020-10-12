@@ -52,7 +52,7 @@ if __name__ == "__main__":
     results = defaultdict(dict)
 
     # Start Experiment if not already finished
-    check_exp(args)
+    check_exp(args, 'synth')
     # Get N and M values
     Ns, Ms = get_NM(k, N1, N2)
 
@@ -90,5 +90,5 @@ if __name__ == "__main__":
     results['Ns'] = Ns
     results['Ms'] = Ms
     # Save results to disk
-    save_results(results, args)
+    save_results(results, args, 'synth')
     print('Finished in %.2f seconds.' % (time() - t0))

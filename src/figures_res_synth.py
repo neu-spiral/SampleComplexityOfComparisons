@@ -4,7 +4,7 @@ Read and plot synthetic experiment results
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
-from helpers import read_results
+from helpers import read_results_synth
 
 
 def plot_SNbM(path):
@@ -17,8 +17,9 @@ def plot_SNbM(path):
     Plots synthetic results as
     N by metrics(d) for each ld, k, method, metric
     """
-    seeds, lds, ds, Ns, _, ks, methods, metrics, results = read_results(path)
-    ds.sort()
+    seeds, lds, ds, Ns, _, ks, methods, metrics, results = \
+        read_results_synth(path)
+    ds.sort(key= lambda x: float(x))
 
     plt.rc('font', family='serif')
     for metric in metrics:
@@ -66,4 +67,4 @@ def plot_SNbM(path):
 
 if __name__ == '__main__':
     home_path = str(Path.home())
-    plot_SNbM(home_path + '/SCResults/')
+    plot_SNbM(home_path + '/Res-Synth/')

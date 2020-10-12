@@ -2,13 +2,10 @@
 Main file for running
 sushi experiments
 """
-import random
 from argparse import ArgumentParser
-from collections import defaultdict
 from time import time
-import numpy as np
 from src.helpers import save_results, check_exp
-from src.data import get_sushi_data, get_sushi_fs
+from src.data import get_sushi_data
 from src.estimators import estimate_beta
 from src.loss import kt_distance
 
@@ -18,14 +15,10 @@ def parse_args():
     Parse args
     """
     parser = ArgumentParser(description='Run sushi experiments.')
-    parser.add_argument('seed', type=int, help='Random seed.')
-    parser.add_argument('k', type=int, choices=[1, 2, 3, 4],
-                        help='Defines M. 1: N, 2: NloglogN' +
-                        ', 3: NlogN, 4: N*sqrt(N).')
     parser.add_argument('method', type=int, choices=[1, 2],
                         help='Beta estimation method. 1: averaging, ' +
                         '2: logistic regression.')
-    parser.add_argument('-gamma', type=float, default=0.01,
+    parser.add_argument('-gamma', type=float, default=1e-9,
                         help='Feature covariance regularizor.')
     parser.add_argument('-K', type=int, default=5, help='CV split count.')
     args = parser.parse_args()
@@ -35,41 +28,35 @@ def parse_args():
 if __name__ == "__main__":
     # Get inputs (parameters)
     args = parse_args()
-    k = args.k
     method = args.method
-    K = args.K
     gamma = args.gamma
-    # Set global variables
-    np.random.seed(args.seed)
-    np.seterr(over='ignore')
-    random.seed(args.seed)
+    K = args.K
     # Outputs (results)
-    results = defaultdict(dict)
+    results = {}
 
     # Start experiment if not already finished
-    # check_sushi_exp(args)
-
-    # Get all features and all scores
-    a_feats, a_scores = get_sushi_fs()
+    check_exp(args, 'sushi')
+    Ns = list(range(22, 100*(K-1)//K//2+1, 2))
+    results['Ns'] = Ns
+    results['K'] = K
+    for N in Ns:
+        results[N] = [[] for _ in range(K)]
 
     t0 = time()
     # iterate over splits with cross validation k
     for cvk in range(K):
-        # Get comparison features, labels and
-        # test item features and scores
-        print('getting s data')
-        X, XC, test_X, yn, scores = get_sushi_data(a_feats, a_scores, cvk)
-        print('done')
-        # Estimate beta
-        e_beta = estimate_beta(X, XC, yn, method, gamma)
-        # Compute kendall tau dist for
-        # scores and estimated scores
-        e_scores = X @ e_beta
-        kt_dist = kt_distance(scores, e_scores)
-        # Print and save results
-        print('KT:%.3f' % (kt_dist))
-        results['kt_dist'] = kt_dist
-    results['seed'] = args.seed
+        for N in Ns:
+            # Get comparison features, labels
+            X, XC, test_X, yn, scores = get_sushi_data(cvk, N)
+            # Estimate beta
+            e_beta = estimate_beta(X, XC, yn, method, gamma)
+            # Compute kendall tau dist for
+            # scores and estimated scores
+            e_scores = test_X @ e_beta
+            kt_dist = kt_distance(scores, e_scores)
+            # Print and save results
+            print('cvk:%i | N:%2i | KT:%.3f' % (cvk, N, kt_dist))
+            results[N][cvk] = kt_dist
     # Save results to disk
-    # save_results(results, args)
+    save_results(results, args, 'sushi')
     print('Finished in %.2f seconds.' % (time() - t0))

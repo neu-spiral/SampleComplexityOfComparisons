@@ -14,7 +14,8 @@ def cv_edges(edges, K):
     [[tr1, te1], [tr2, te2], ...]
     """
     unq_nodes = get_unq_nodes(edges)
-    kf = KFold(n_splits=K, shuffle=True)
+    seed = int(np.random.rand()*1e6)
+    kf = KFold(n_splits=K, shuffle=True, random_state=seed)
     split_edges = [[[], []] for _ in range(K)]
     for k, (train, test) in enumerate(kf.split(unq_nodes)):
         for edge in edges:
@@ -36,7 +37,7 @@ def get_unq_nodes(edges):
     return unq_nodes
 
 
-def read_results(path):
+def read_results_synth(path):
     """
     Read path for experiment results
     return in a dict
@@ -95,36 +96,40 @@ def read_results(path):
     return seeds, lds, ds, Ns, Ms, ks, methods, metrics, results
 
 
-def check_exp(args):
+def check_exp(args, name):
     """
     If experiment is already finished, stop early.
     """
-    file_path = get_exp_path(args)
+    file_path = get_exp_path(args, name)
     if not path.exists(file_path):
         return
     else:
         raise Exception('%s exists.' % file_path)
 
 
-def save_results(results, args):
+def save_results(results, args, name):
     """
     Save results dict in disk.
     """
     # Get file path to write
-    file_path = get_exp_path(args)
+    file_path = get_exp_path(args, name)
     # Write to disk
     with open(file_path, 'wb+') as f:
         pickle.dump(dict(results), f)
 
 
-def get_exp_path(args):
+def get_exp_path(args, name):
     """
     Generate file path for current experiment.
     """
-    # Find path to home dir
     home_path = str(Path.home())
-    file_path = home_path + '/SCResults/%i-%.2f-%i-%i-%i-%i-%i' \
-        % (args.seed, args.ld, args.d, args.N1, args.N2, args.k, args.method)
+    if name == 'synth':
+        # Find path to home dir
+        file_path = home_path + '/Res-Synth/%i-%.2f-%i-%i-%i-%i-%i' \
+            % (args.seed, args.ld, args.d, args.N1,
+               args.N2, args.k, args.method)
+    elif name == 'sushi':
+        file_path = home_path + '/Res-Sushi/%i' % args.method
 
     return file_path
 
