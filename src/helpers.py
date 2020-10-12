@@ -5,23 +5,35 @@ from os import path, listdir
 import pickle
 from pathlib import Path
 import numpy as np
+from sklearn.model_selection import KFold
 
 
 def cv_edges(edges, K):
     """
-    Given a list of (u, v) find K fold cv edges
+    Given a list of (u, v) find K fold cv split of nodes
     [[tr1, te1], [tr2, te2], ...]
     """
-    unq_nodes = {u for edge in edges for u in edge}
-    count = len(unq_nodes)
-    for i in range(K-1):
-        n1 = (i-1)*count//K
-        n2 = i*count//K
-        test_nodes = list(range(n1, n2))
+    unq_nodes = get_unq_nodes(edges)
+    kf = KFold(n_splits=K, shuffle=True)
+    split_edges = [[[], []] for _ in range(K)]
+    for k, (train, test) in enumerate(kf.split(unq_nodes)):
+        for edge in edges:
+            u, v = edge
+            if u in train and v in train:
+                split_edges[k][0].append(edge)
+            elif u in test and v in test:
+                split_edges[k][1].append(edge)
 
-    cv_nodes = [range( for i in range(5)]
+    return split_edges
 
 
+def get_unq_nodes(edges):
+    """
+    Get a list of unique nodes from a list of edges
+    """
+    unq_nodes = list({u for edge in edges for u in edge})
+
+    return unq_nodes
 
 
 def read_results(path):
@@ -142,7 +154,7 @@ def get_f_stats(d, ld):
     """
     Samples a mean and a psd covariance
     where largest eigen value is 1
-    and smallest eigen value is 0.
+    and smallest eigen value is ld.
     """
     # Feature mean
     f_mean = np.random.rand(d)*10 - 5

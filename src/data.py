@@ -1,14 +1,16 @@
 """
 Data generation and reading related
 """
-from path import Path
 from random import choices
+from pathlib import Path
+import pickle
 import numpy as np
-from helper import cv_edges
+from helpers import cv_edges, get_unq_nodes
 
 
 def get_data(N, M, beta, f_mean, f_cov):
     """
+    Synthetic data
     Generates d dimensional gaussian vectors.
     Uniformly at random pairwise comparisons are chosen.
     Labels are generated with Bradley Terry model.
@@ -80,7 +82,7 @@ def read_sushi_data(path):
             line = [int(x) for x in line]
             for j in range(9):
                 for v in line[j+1:]:
-                    edges.append((line[j], v))
+                    edges.append([line[j], v])
     # Edges from b
     edges_b = []
     with open(path+'sushi3b.5000.10.order') as f:
@@ -91,7 +93,7 @@ def read_sushi_data(path):
             line = [int(x) for x in line]
             for j in range(9):
                 for v in line[j+1:]:
-                    edges_b.append((line[j], v))
+                    edges_b.append([line[j], v])
     # Mean scores for nodes
     scores_b = [[] for _ in range(100)]
     with open(path+'sushi3b.5000.10.score') as f:
@@ -104,22 +106,89 @@ def read_sushi_data(path):
 
     m_scores = np.array([np.mean(x) for x in scores_b])
     std_scores = np.array([np.std(x) for x in scores_b])
-    print(m_scores)
-    print(std_scores)
-    scores_b = m_scores - 2*std_scores
+    scores_b = np.exp(m_scores - 2*std_scores)
 
     return feats, profs, edges, edges_b, scores_b
 
 
-def get_sushi_data():
+def split_sushi_data(K):
     """
-    """
-    home_path = Path.home()
-    X, _, _, edges, scores = read_sushi_data(home_path + '/Data/sushi3-2016/')
+    Needs to be run once on raw sushi data
+    before starting sushi experiments
 
-    return X
+    Splits edges in set b of sushi data with cross validation
+    Makes sure no node is shared in train and test sets
+    Saves splits and scores
+    """
+    print('Reading sushi data...')
+    home_path = str(Path.home())
+    X, _, _, edges, scores = read_sushi_data(home_path + '/Data/sushi3-2016/')
+    print('Splitting edges per fold...')
+    splits = cv_edges(edges, K)
+
+    for i, split in enumerate(splits):
+        print('For split %i, get stats_u, train_u...' % i)
+        train_e, test_e = split
+        train_u = get_unq_nodes(train_e)
+        N = len(train_u)//2
+        stats_u = train_u[N:]
+        train_u = train_u[:N]
+        for edge in train_e:
+            u, v = edge
+            if u in train_u and v in train_u:
+                continue
+            else:
+                train_e.remove(edge)
+        with open(home_path + '/Data/sushi3-2016/split%i' % i, 'wb+') as f:
+            pickle.dump([stats_u, train_e, test_e], f)
+
+    with open(home_path + '/Data/sushi3-2016/features', 'wb+') as f:
+        pickle.dump(X, f)
+
+    with open(home_path + '/Data/sushi3-2016/scores', 'wb+') as f:
+        pickle.dump(scores, f)
+
+
+def get_sushi_fs():
+    """
+    Read sushi data features and scores
+    for every item in set b
+    """
+    home_path = str(Path.home())
+
+    with open(home_path + '/Data/sushi3-2016/features', 'rb') as f:
+        a_feats = pickle.load(f)
+
+    with open(home_path + '/Data/sushi3-2016/scores', 'rb') as f:
+        a_scrs = pickle.load(f)
+
+    return a_feats, a_scrs
+
+
+def get_sushi_data(features, scores, cvk):
+    """
+    Get sushi data from splits
+    """
+    home_path = str(Path.home())
+    with open(home_path + '/Data/sushi3-2016/split%i' % cvk, 'rb') as f:
+        stats_u, train_e, test_e = pickle.load(f)
+
+    X = features[stats_u]
+
+    M = len(train_e)
+
+    u, v = [list(x) for x in zip(*train_e)]
+    XC = features[v] - features[u]
+    XC[M//2:] *= -1
+    yn = np.ones(M)
+    yn[M//2:] *= -1
+
+    test_u = get_unq_nodes(test_e)
+    test_X = features[test_u]
+    scores = scores[test_u]
+
+    return X, XC, test_X, yn, scores
 
 
 if __name__ == '__main__':
-    feats, profs, edges, edges_b, scores_b = get_sushi_data()
-    print(scores_b)
+    split_sushi_data(K=5)

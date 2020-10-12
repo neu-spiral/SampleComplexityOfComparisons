@@ -28,19 +28,15 @@ def beta_error(e_beta, beta, f_cov, method):
     return err_angle, err_beta
 
 
-def kt_distance(X, beta, e_beta):
+def kt_distance(scores, e_scores): # X, beta, e_beta):
     """
     Kendall Tau distance
-    len Z pairs exist where for a pair i, j
+    Z pairs exist where for a pair i, j is
     true score of i < true score of j, for such i, j
     sum count of estimated score of i > estimated score of j
     then divide by Z
     """
-    N = X.shape[0]
-    # True scores
-    scores = X @ beta
-    # Estimated scores
-    e_scores = X @ e_beta
+    N = len(scores)
 
     num = 0
     denum = 0

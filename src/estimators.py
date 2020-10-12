@@ -5,17 +5,16 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression as logistic_reg
 
 
-def averaging(X, XC, yn):
+def averaging(X, XC, yn, gamma):
     """
     Estimate covariance from X, beta from XC and yn.
     """
-    N = X.shape[0]
-    _, d = XC.shape
+    N, d = X.shape
     # Estimated mean
     e_mean = X.mean(axis=0)
     # Estimated covariance, scaling for unbiased precision
     X -= e_mean
-    e_cov = X.T@X/(N-d-2)
+    e_cov = X.T@X/(N-d-2) + gamma*np.eye(d)
     # Estimated precision
     e_prec = np.linalg.inv(e_cov)
     # Estimated beta
@@ -35,12 +34,12 @@ def logistic(XC, yn):
     return beta_est
 
 
-def estimate_beta(X, XC, yn, method):
+def estimate_beta(X, XC, yn, method, gamma=0):
     """
     Choose method and return beta
     """
     if method == 1:
-        e_beta = averaging(X, XC, yn)
+        e_beta = averaging(X, XC, yn, gamma)
     elif method == 2:
         e_beta = logistic(XC, yn)
 
