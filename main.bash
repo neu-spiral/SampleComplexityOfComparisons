@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for seed in {0..4..1}
+for seed in {0..9..1}
 do
     for ld in 0.005 1
     do

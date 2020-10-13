@@ -25,16 +25,18 @@ def plot_SNbm(path, eps1, eps2):
 
     plt.rc('font', family='serif')
     markers_list = ['x-', 's-', '^-', 'o-', '>-']
-    markers = cycle(markers_list)
 
     for metric in metrics:
         for method in methods:
             for k in ks:
                 for ld in lds:
                     # Now in the same figure
+                    markers = cycle(markers_list)
                     _, ax = plt.subplots()
                     for d in ds:
-                        if d in ['220']:
+                        # Remove some d here
+                        # So that the plot is not dense
+                        if (int(d)-10) % 80 != 0:
                             continue
                         if ld == '1.00':
                             line = eps1*np.ones(Ns[d].size)
@@ -48,7 +50,8 @@ def plot_SNbm(path, eps1, eps2):
                         my = y.mean(axis=0)
                         sdy = y.std(axis=0)
 
-                        plt.plot(x, my, next(markers), label='d = %s' % d)
+                        plt.plot(x, my, next(markers), label='d = %s' % d,
+                                 markersize=3)
                         plt.fill_between(x, my - sdy, my + sdy, alpha=0.2)
                     if metric == 'err_norm':
                         plt.plot(x, line, 'k-.')
@@ -85,24 +88,27 @@ def plot_SdbN(path, eps1, eps2):
     """
     seeds, lds, ds, Ns, _, ks, _, _, results = \
         read_results_synth(path)
+    size = len(Ns[ds[0]])
     ds.sort(key=float)
     ks.sort(key=float)
+    markers_list = ['x-', 's-', '^-', 'o-', '>-']
 
     x = [int(d) for d in ds]
 
     plt.rc('font', family='serif')
     for ld in lds:
-        if ld == '1.00':
+        if float(ld) == 1:
             epsilon = eps1
         else:
             epsilon = eps2
 
         # Now in the same figure
+        markers = cycle(markers_list)
         _, ax = plt.subplots()
         for k in ks:
             min_N = np.zeros(len(ds))
             for j, d in enumerate(ds):
-                y = np.zeros((len(seeds), 10))
+                y = np.zeros((len(seeds), size))
                 for i, seed in enumerate(seeds):
                     y[i] = results[seed][ld][d][k]['1']['err_norm']
                 # Mean and std of metrics
@@ -110,7 +116,7 @@ def plot_SdbN(path, eps1, eps2):
                 loc = np.where(epsilon > my)[0][0]
                 min_N[j] = Ns[ds[0]][loc]
             label = r'$M=N$' if k == '1' else r'$M=N\log N$'
-            plt.plot(x, min_N, label=label)
+            plt.plot(x, min_N, next(markers), label=label)
         plt.legend(loc=1, fontsize=10)
         plt.grid()
         plt.ylabel(r'$N$', fontsize=16)
@@ -118,7 +124,7 @@ def plot_SdbN(path, eps1, eps2):
                     ha='left', va='top', xycoords='axes fraction',
                     textcoords='offset points', fontsize=16)
         plt.tight_layout()
-        plt.savefig(path+'../Syn-dbN-%i-%s.pdf' % (epsilon, ld),
+        plt.savefig(path+'../Syn-dbN-%.1f-%s.pdf' % (epsilon, ld),
                     format='pdf', transparent=True)
         plt.close()
 
@@ -127,9 +133,8 @@ if __name__ == '__main__':
     parser = ArgumentParser(description='Run synthetic experiments.')
     parser.add_argument('-eps1', type=float, default=1,
                         help='Epsilon val for ld=1.')
-    parser.add_argument('-eps2', type=float, default=3,
+    parser.add_argument('-eps2', type=float, default=2,
                         help='Epsilon val for ld!=1.')
-
     args = parser.parse_args()
 
     home_path = str(Path.home())

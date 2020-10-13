@@ -17,7 +17,7 @@ mkdir /home/$USER/Res-Sushi/
 python src/data.py
 python sushi.py 1
 python sushi.py 2
-python figures_res_sushi.py
+python src/figures_res_sushi.py
 ```
 
 Please consider citing [our paper] if you use this repository.
