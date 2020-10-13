@@ -77,8 +77,8 @@ if __name__ == "__main__":
         e_scores = test_X @ e_beta
         kt_dist = kt_distance(scores, e_scores)
         # Print and save results
-        print('d:%3i | N:%6i | M:%10i | Angle:%.3f | Norm:%.3f | KT:%.3f'
-              % (d, N, M, err_angle, err_norm, kt_dist))
+        print('ld: %f | d:%3i | N:%6i | M:%10i | Angle:%.3f | Norm:%.3f | KT:%.3f'
+              % (ld, d, N, M, err_angle, err_norm, kt_dist))
         results[N]['err_angle'] = err_angle
         results[N]['err_norm'] = err_norm
         results[N]['kt_dist'] = kt_dist

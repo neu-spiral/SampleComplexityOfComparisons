@@ -125,7 +125,7 @@ def get_exp_path(args, name):
     home_path = str(Path.home())
     if name == 'synth':
         # Find path to home dir
-        file_path = home_path + '/Res-Synth/%i-%.2f-%i-%i-%i-%i-%i' \
+        file_path = home_path + '/Res-Synth/%i-%.3f-%i-%i-%i-%i-%i' \
             % (args.seed, args.ld, args.d, args.N1,
                args.N2, args.k, args.method)
     elif name == 'sushi':
@@ -178,9 +178,17 @@ def get_NM(k, N1, N2):
     """
     Given input k, N1, N2, return arrays N, M
     """
-    N1 = np.log10(N1)
-    N2 = np.log10(N2)
-    N = np.ceil(np.logspace(N1, N2, 10)).astype(np.int32)
+    # N1 = np.log10(N1)
+    # N2 = np.log10(N2)
+    # N = np.ceil(np.logspace(N1, N2, 10)).astype(np.int32)
+
+    if N2 > 4000:
+        span1 = np.linspace(N1, 2000, 15)
+        span2 = np.linspace(2000+N1/20, N2/2, 5)
+        span3 = np.linspace(N2/2 + N2/20, N2, 5)
+        N = np.concatenate([span1, span2, span3]).astype(np.int32)
+    else:
+        N = np.linspace(N1, N2, 10).astype(np.int32)
 
     if k == 1:
         M = N

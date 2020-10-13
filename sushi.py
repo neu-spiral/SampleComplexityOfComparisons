@@ -36,7 +36,9 @@ if __name__ == "__main__":
 
     # Start experiment if not already finished
     check_exp(args, 'sushi')
+
     Ns = list(range(22, 100*(K-1)//K//2+1, 2))
+
     results['Ns'] = Ns
     results['K'] = K
     for N in Ns:

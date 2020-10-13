@@ -129,8 +129,8 @@ def split_sushi_data(K):
     for i, split in enumerate(splits):
         print('For split %i, get stats_u, train_u...' % i)
         train_e, test_e = split
-        train_u = get_unq_nodes(train_e)
         print('Train edge count before stats/train split: %i' % len(train_e))
+        train_u = get_unq_nodes(train_e)
         N = len(train_u)//2
         stats_u = train_u[N:]
         train_u = train_u[:N]

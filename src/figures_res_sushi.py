@@ -47,6 +47,7 @@ def plot_NbKT(path):
     plt.ylabel(r'$\tau(\hat\beta, \beta)$', fontsize=16)
     plt.ylim(0, 1)
     plt.legend(loc=2, fontsize=10)
+    plt.grid()
     plt.tight_layout()
     plt.savefig(path+'../Res-Sushi.pdf', format='pdf', transparent=True)
     plt.close()
