@@ -11,7 +11,7 @@ from helpers import read_results_synth
 
 def plot_SNbm(path, eps1, eps2):
     """
-    Plot synthetic N by M.
+    Plot synthetic metrics as a function of N.
 
     Assumes all experiments are finished
     and all results are saved.
@@ -110,7 +110,14 @@ def plot_SdbN(path, eps1, eps2):
             for j, d in enumerate(ds):
                 y = np.zeros((len(seeds), size))
                 for i, seed in enumerate(seeds):
-                    y[i] = results[seed][ld][d][k]['1']['err_norm']
+                    value = results[seed][ld][d][k]['1']['err_norm']
+                    try:
+                        if (value > 0).any():
+                            y[i] = value
+                    except:
+                        print('Missing file.')
+                        print('%s-%s-%s-%s' % (seed, ld, d, k))
+
                 # Mean and std of metrics
                 my = y.mean(axis=0)
                 loc = np.where(epsilon > my)[0][0]
