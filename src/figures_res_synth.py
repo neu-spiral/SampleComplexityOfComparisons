@@ -50,7 +50,7 @@ def plot_SNbm(path, eps1, eps2):
                         my = y.mean(axis=0)
                         sdy = y.std(axis=0)
 
-                        plt.plot(x, my, next(markers), label='d = %s' % d,
+                        plt.plot(x, my, next(markers), label=r'$d = %s$' % d,
                                  markersize=3)
                         plt.fill_between(x, my - sdy, my + sdy, alpha=0.2)
                     if metric == 'err_norm':

@@ -8,7 +8,7 @@ do
         do
             for method in 1 2
             do
-                python synthetic_by_M.bash $seed $ld $d 2000 50000 $method
+                python synthetic_by_M.py $seed $ld $d 2000 50000 $method
             done
         done
     done

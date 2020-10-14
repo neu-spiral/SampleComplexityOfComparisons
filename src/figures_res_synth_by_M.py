@@ -38,11 +38,11 @@ def plot_SmbM(path):
                 my = y.mean(axis=0)
                 sdy = y.std(axis=0)
 
-                plt.plot(x, my, next(markers), label='d = %s' % d,
+                plt.plot(x, my, next(markers), label=r'$d = %s$' % d,
                          markersize=3)
                 plt.fill_between(x, my - sdy, my + sdy, alpha=0.2)
             # plt.axvline(N)
-            plt.axvline(N*np.log(N))
+            plt.axvline(N*np.log(N), ls='--', color='k', label=r'$M=N\log N$')
             if method == '1':
                 label = r'$||\hat\beta - c_1\beta||$'
             elif method == '2':
@@ -62,12 +62,5 @@ def plot_SmbM(path):
 
 
 if __name__ == '__main__':
-    parser = ArgumentParser(description='Run synthetic experiments.')
-    parser.add_argument('-eps1', type=float, default=1,
-                        help='Epsilon val for ld=1.')
-    parser.add_argument('-eps2', type=float, default=2,
-                        help='Epsilon val for ld!=1.')
-    args = parser.parse_args()
-
     home_path = str(Path.home())
     plot_SmbM(home_path + '/Res-Synth-M/')
