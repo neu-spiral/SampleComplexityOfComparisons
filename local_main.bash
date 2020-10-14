@@ -1,10 +1,10 @@
 #!/bin/bash
 
-for seed in {0..2..1}
+for seed in {0..1..1}
 do
     for ld in 0.005 1
     do
-        for d in {20..170..50}
+        for d in {20..120..50}
         do
             for k in 1 3
             do

@@ -1,19 +1,23 @@
 # On the Sample Complexity of Learning from Pairwise Comparisons with Features
 
 ### Synthetic Experiments
-To replicate results on a cluster with slurm, first adjust ```singe.bash```.
+To replicate results on a cluster with slurm, first adjust ```single.bash``` and ```single_by_M.bash```.
 Then, run:
 ```sh
-mkdir /home/$USER/Res-Synth/
+mkdir ~/Res-Synth/
+mkdir ~/Res-Synth-M/
 sbatch main.bash
+sbatch main_by_M.bash
 python src/figures_res_synth.py
+python src/figures_res_synth_by_M.py
 ```
+You can run ```local_main.bash``` for testing code locally.
 
 ### Sushi Experiments
-To replicate results, first download  [Sushi Dataset] (sushi3-2016.zip) and extract to ```/home/$USER/Data/```.
+To replicate results, first download  [Sushi Dataset] (sushi3-2016.zip) and extract to ```~/Data/```.
 Then, run:
 ```sh
-mkdir /home/$USER/Res-Sushi/
+mkdir ~/Res-Sushi/
 python src/data.py
 python sushi.py 1
 python sushi.py 2

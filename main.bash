@@ -10,7 +10,7 @@ do
             do
                 for method in 1 2
                 do
-                    sbatch --job-name=$seed${ld:(-2)}$d$k$method --output=z.out --error=z.err single.bash $seed $ld $d 300 50000 $k $method
+                    sbatch --job-name=$seed${ld:(-2)}$d$k$method --output=z.out --error=z.err single.bash $seed $ld $d 300 40000 $k $method
                 done
             done
         done

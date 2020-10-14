@@ -22,6 +22,7 @@ def get_data(N, M, beta, f_mean, f_cov):
     X1 = np.random.multivariate_normal(f_mean, f_cov, N)
 
     # Uniformly at random edges
+    # Choices with repetition
     vertices = list(range(N))
     u = choices(vertices, k=M)
     v = choices(vertices, k=M)

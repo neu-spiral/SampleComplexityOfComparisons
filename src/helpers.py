@@ -96,6 +96,61 @@ def read_results_synth(path):
     return seeds, lds, ds, Ns, Ms, ks, methods, metrics, results
 
 
+def read_results_synth_by_M(path):
+    """
+    Read path for experiment results
+    return in a dict
+    """
+    # Hard code metrics
+    metrics = ['err_angle', 'err_norm', 'kt_dist']
+    # Files in given path
+    files = listdir(path)
+    # IF ANY FILES ARE TO BE SKIPPED, ADD LINES HERE.
+    # Split by dash
+    sfiles = [f.split('-') for f in files]
+    # Different seed values
+    seeds = list({f[0] for f in sfiles})
+    # Different ld values
+    lds = list({f[1] for f in sfiles})
+    # Different d values
+    ds = list({f[2] for f in sfiles})
+    # Different method values
+    methods = list({f[-1] for f in sfiles})
+    # Different N and M values for each d
+    Ns = {}
+    Ms = {}
+
+    # Form skeleton of results dict
+    results = {}
+    for seed in seeds:
+        results[seed] = {}
+        for ld in lds:
+            results[seed][ld] = {}
+            for d in ds:
+                results[seed][ld][d] = {}
+                for method in methods:
+                    results[seed][ld][d][method] = {}
+                    for metric in metrics:
+                        results[seed][ld][d][method][metric] = None
+
+    for f in files:
+        seed, ld, d, _, M, method = f.split('-')
+
+        with open(path+f, 'rb') as fb:
+            resd = pickle.load(fb)  # Results dictionary
+
+        Ns[d] = resd['Ns']
+        Ms[d] = resd['Ms']
+
+        for metric in metrics:
+            metric_values = np.zeros(Ms[d].size)
+            for i, M in enumerate(resd['Ms']):
+                metric_values[i] = resd[M][metric]
+            results[seed][ld][d][method][metric] = metric_values
+
+    return seeds, lds, ds, Ns, Ms, methods, metrics, results
+
+
 def check_exp(args, name):
     """
     If experiment is already finished, stop early.
@@ -128,6 +183,11 @@ def get_exp_path(args, name):
         file_path = home_path + '/Res-Synth/%i-%.3f-%i-%i-%i-%i-%i' \
             % (args.seed, args.ld, args.d, args.N1,
                args.N2, args.k, args.method)
+    elif name == 'synth_by_M':
+        # Find path to home dir
+        file_path = home_path + '/Res-Synth-M/%i-%.3f-%i-%i-%i-%i' \
+            % (args.seed, args.ld, args.d, args.N,
+               args.M, args.method)
     elif name == 'sushi':
         file_path = home_path + '/Res-Sushi/%i' % args.method
 
