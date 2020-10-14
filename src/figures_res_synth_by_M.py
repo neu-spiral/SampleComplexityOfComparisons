@@ -2,7 +2,6 @@
 Read and plot synthetic experiment results
 """
 from pathlib import Path
-from argparse import ArgumentParser
 from itertools import cycle
 import numpy as np
 import matplotlib.pyplot as plt

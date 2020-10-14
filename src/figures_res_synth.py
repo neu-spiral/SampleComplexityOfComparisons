@@ -67,7 +67,7 @@ def plot_SNbm(path, eps1, eps2):
                     else:
                         label = r'$\tau(\hat\beta, \beta)$'
                         lim = 0.4
-                    ax.annotate(r'$N$', xy=(.95, 0), xytext=(15, -5),
+                    ax.annotate(r'$N$', xy=(.95, 0), xytext=(18, -5),
                                 ha='left', va='top', xycoords='axes fraction',
                                 textcoords='offset points', fontsize=16)
                     plt.ylabel(label, fontsize=16)
@@ -123,11 +123,11 @@ def plot_SdbN(path, eps1, eps2):
                 loc = np.where(epsilon > my)[0][0]
                 min_N[j] = Ns[ds[0]][loc]
             label = r'$M=N$' if k == '1' else r'$M=N\log N$'
-            plt.plot(x, min_N, next(markers), label=label)
+            plt.plot(x, min_N, next(markers), label=label, markersize=3)
         plt.legend(loc=1, fontsize=10)
         plt.grid()
         plt.ylabel(r'$N$', fontsize=16)
-        ax.annotate(r'$d$', xy=(.95, 0), xytext=(15, -5),
+        ax.annotate(r'$d$', xy=(.95, 0), xytext=(18, -5),
                     ha='left', va='top', xycoords='axes fraction',
                     textcoords='offset points', fontsize=16)
         plt.tight_layout()
@@ -138,9 +138,9 @@ def plot_SdbN(path, eps1, eps2):
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='Run synthetic experiments.')
-    parser.add_argument('-eps1', type=float, default=1,
+    parser.add_argument('-eps1', type=float, default=1.1,
                         help='Epsilon val for ld=1.')
-    parser.add_argument('-eps2', type=float, default=2,
+    parser.add_argument('-eps2', type=float, default=1.1,
                         help='Epsilon val for ld!=1.')
     args = parser.parse_args()
 
