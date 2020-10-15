@@ -8,7 +8,7 @@ import numpy as np
 from helpers import cv_edges, get_unq_nodes
 
 
-def get_data(N, M, beta, f_mean, f_cov):
+def get_data(N, M, beta, f_mean, f_cov, alpha):
     """
     Synthetic data
     Generates d dimensional gaussian vectors.
@@ -34,13 +34,16 @@ def get_data(N, M, beta, f_mean, f_cov):
     # beta^T(X-Y)
     scores = XC @ beta
     # BTL Probability
-    p = (1+np.exp(-scores))**-1
+    p = (1+np.exp(-alpha*scores))**-1
     # Uniform random variables
     urv = np.random.rand(M)
     # BTL Labels
     yn = np.sign(p - urv)
     # True labels
     y = np.sign(scores)
+
+    if y.size > 5:
+        print('Error ratio is %.3f' % (np.sum(yn != y)/y.size))
 
     return X, XC, yn, y
 

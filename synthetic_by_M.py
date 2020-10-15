@@ -22,9 +22,10 @@ def parse_args():
     parser.add_argument('ld', type=float,
                         help='Lambda d. Min eig value of data' +
                         ' covariance where max is 1.')
+    parser.add_argument('pe', type=float, help='Probability of error.')
     parser.add_argument('d', type=int, help='Dimensionality.')
     parser.add_argument('N', type=int, help='N number of nodes.')
-    parser.add_argument('M', type=int, help='Largest N')
+    parser.add_argument('M', type=int, help='Largest M.')
     parser.add_argument('method', type=int, choices=[1, 2],
                         help='Beta estimation method. 1: averaging, ' +
                         '2: logistic regression.')
@@ -36,6 +37,7 @@ if __name__ == "__main__":
     # Get inputs (parameters)
     args = parse_args()
     ld = args.ld
+    pe = args.pe
     d = args.d
     N = args.N
     M = args.M
@@ -49,24 +51,27 @@ if __name__ == "__main__":
 
     # Start Experiment if not already finished
     check_exp(args, 'synth_by_M')
+    # Get M values to run for
     Ms = np.logspace(np.log10(300), np.log10(M)).astype(np.int32)
 
     # Beta and feature stats change with seed
     beta = np.random.multivariate_normal(np.zeros(d), np.eye(d)*10)
     f_mean, f_cov = get_f_stats(d, ld)
+    # Get alpha that results in prob of error
+    alpha = get_alpha(pe, beta, f_cov)
 
     # This for can be run embarrasingly parallel.
     # But I'm embarrassingly lazy to do that.
     t0 = time()
     for M in Ms:
         # Sample data
-        X, XC, yn, y = get_data(N, M, beta, f_mean, f_cov)
+        X, XC, yn, y = get_data(N, M, beta, f_mean, f_cov, alpha)
         # Estimate beta
         e_beta = estimate_beta(X, XC, yn, method)
         # Calculate error of beta
         err_angle, err_norm = beta_error(e_beta, beta, f_cov, method)
         # Test e_beta on new data for kendall tau
-        test_X, _, _, _ = get_data(500, 1, beta, f_mean, f_cov)
+        test_X, _, _, _ = get_data(500, 1, beta, f_mean, f_cov, alpha)
         scores = test_X @ beta
         e_scores = test_X @ e_beta
         kt_dist = kt_distance(scores, e_scores)
@@ -78,6 +83,7 @@ if __name__ == "__main__":
         results[M]['kt_dist'] = kt_dist
     results['seed'] = args.seed
     results['ld'] = ld
+    results['pe'] = pe
     results['d'] = d
     results['method'] = method
     results['Ns'] = np.array(N)

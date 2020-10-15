@@ -82,12 +82,11 @@ def plot_SNbm(path, eps1, eps2):
                     plt.close()
 
 
-def plot_SdbN(path, eps1, eps2):
+def plot_SNbd(path, eps1, eps2):
     """
-    Plot synthethic d by minimum N that reaches epsilon
+    Plot minimum N that achieves epsilon by d
     """
-    seeds, lds, ds, Ns, _, ks, _, _, results = \
-        read_results_synth(path)
+    seeds, lds, ds, Ns, _, ks, _, _, results = read_results_synth(path)
     size = len(Ns[ds[0]])
     ds.sort(key=float)
     ks.sort(key=float)
@@ -96,16 +95,15 @@ def plot_SdbN(path, eps1, eps2):
     x = [int(d) for d in ds]
 
     plt.rc('font', family='serif')
-    for ld in lds:
-        if float(ld) == 1:
-            epsilon = eps1
-        else:
-            epsilon = eps2
-
+    for k in ks:
         # Now in the same figure
-        markers = cycle(markers_list)
         _, ax = plt.subplots()
-        for k in ks:
+        markers = cycle(markers_list)
+        for ld in lds:
+            if float(ld) == 1:
+                epsilon = eps1
+            else:
+                epsilon = eps2
             min_N = np.zeros(len(ds))
             for j, d in enumerate(ds):
                 y = np.zeros((len(seeds), size))
@@ -122,28 +120,28 @@ def plot_SdbN(path, eps1, eps2):
                 my = y.mean(axis=0)
                 loc = np.where(epsilon > my)[0][0]
                 min_N[j] = Ns[ds[0]][loc]
-            label = r'$M=N$' if k == '1' else r'$M=N\log N$'
+            label = r'$\lambda_d=%s$' % ld
             plt.plot(x, min_N, next(markers), label=label, markersize=3)
-        plt.legend(loc=1, fontsize=10)
+        plt.legend(loc='upper left', fontsize=10)
         plt.grid()
         plt.ylabel(r'$N$', fontsize=16)
         ax.annotate(r'$d$', xy=(.95, 0), xytext=(18, -5),
                     ha='left', va='top', xycoords='axes fraction',
                     textcoords='offset points', fontsize=16)
         plt.tight_layout()
-        plt.savefig(path+'../Syn-dbN-%.1f-%s.pdf' % (epsilon, ld),
+        plt.savefig(path+'../Syn-dbN-%.1f-%s.pdf' % (epsilon, k),
                     format='pdf', transparent=True)
         plt.close()
 
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='Run synthetic experiments.')
-    parser.add_argument('-eps1', type=float, default=1.1,
+    parser.add_argument('-eps1', type=float, default=0.5,
                         help='Epsilon val for ld=1.')
-    parser.add_argument('-eps2', type=float, default=1.1,
+    parser.add_argument('-eps2', type=float, default=0.5,
                         help='Epsilon val for ld!=1.')
     args = parser.parse_args()
 
     home_path = str(Path.home())
-    plot_SNbm(home_path + '/Res-Synth/', args.eps1, args.eps2)
-    plot_SdbN(home_path + '/Res-Synth/', args.eps1, args.eps2)
+    #plot_SNbm(home_path + '/Res-Synth/', args.eps1, args.eps2)
+    plot_SNbd(home_path + '/Res-Synth/', args.eps1, args.eps2)

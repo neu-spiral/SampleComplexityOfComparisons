@@ -4,11 +4,14 @@ for seed in {0..9..1}
 do
     for ld in 0.005 1
     do
-        for d in 20 100 250
+        for pe in 0 0.2 0.4
         do
-            for method in 1 2
+            for d in 20 100 250
             do
-                python synthetic_by_M.py $seed $ld $d 2000 50000 $method
+                for method in 1
+                do
+                    python synthetic_by_M.py $seed $ld $pe $d 2000 50000 $method
+                done
             done
         done
     done

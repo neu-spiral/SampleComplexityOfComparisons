@@ -177,16 +177,15 @@ def get_exp_path(args, name):
     """
     Generate file path for current experiment.
     """
+    # Find path to home dir
     home_path = str(Path.home())
     if name == 'synth':
-        # Find path to home dir
-        file_path = home_path + '/Res-Synth/%i-%.3f-%i-%i-%i-%i-%i' \
-            % (args.seed, args.ld, args.d, args.N1,
+        file_path = home_path + '/Res-Synth/%i-%.3f-%.1f-%i-%i-%i-%i-%i' \
+            % (args.seed, args.ld, args.pe, args.d, args.N1,
                args.N2, args.k, args.method)
     elif name == 'synth_by_M':
-        # Find path to home dir
-        file_path = home_path + '/Res-Synth-M/%i-%.3f-%i-%i-%i-%i' \
-            % (args.seed, args.ld, args.d, args.N,
+        file_path = home_path + '/Res-Synth-M/%i-%.3f-%.1f-%i-%i-%i-%i' \
+            % (args.seed, args.ld, args.pe, args.d, args.N,
                args.M, args.method)
     elif name == 'sushi':
         file_path = home_path + '/Res-Sushi/%i' % args.method
@@ -200,8 +199,9 @@ def get_c1(beta, f_cov):
     """
     # Resulting variance from the inner product
     sigma2 = 2*beta @ f_cov @ beta
+    std = sigma2**.5
     # Points to sample derivative from
-    x = np.linspace(-2*sigma2, 2*sigma2, 10**6)
+    x = np.linspace(-4*std, 4*std, 10**6)
     # pdf(x)
     pdf = np.exp(-x**2/(2*sigma2))/(2*np.pi*sigma2)**.5
     if np.trapz(pdf, x) < 0.999:
@@ -213,6 +213,34 @@ def get_c1(beta, f_cov):
     e_c1 = 4*np.trapz(y, x)
 
     return e_c1
+
+
+def get_alpha(pe, beta, f_cov):
+    """
+    Given probability of error pe, beta, and feature covariance,
+    estimate the alpha that results in pe for
+    f(alpha, x) = (1+np.exp(-alpha*x))**-1
+    """
+    sigma2 = 2*beta @ f_cov @ beta
+    std = sigma2**.5
+    x = np.linspace(-4*std, 0, 10**6)
+    pdf = np.exp(-x**2/(2*sigma2))/(2*np.pi*sigma2)**.5
+
+    # For starting the loop
+    e_pe = 0
+    alpha = 1e4
+
+    while np.abs(e_pe - pe) > 1e-4:
+        if e_pe < pe:
+            alpha *= .9
+        else:
+            alpha *= 1.05
+
+        sig_x = (1+np.exp(-alpha*x))**-1
+        y = sig_x*pdf
+        e_pe = 2*np.trapz(y, x)
+
+    return alpha
 
 
 def get_f_stats(d, ld):
@@ -259,3 +287,11 @@ def get_NM(k, N1, N2):
         M = np.ceil(N*N**.5).astype(np.int32)
 
     return N, M
+
+
+if __name__ == '__main__':
+    d = 10
+    pe = 0.42
+    beta = np.random.rand(d)
+    f_cov = np.eye(d)
+    print(get_alpha(pe, beta, f_cov))

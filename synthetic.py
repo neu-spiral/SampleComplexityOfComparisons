@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 from collections import defaultdict
 from time import time
 import numpy as np
-from src.helpers import get_NM, get_f_stats, save_results, check_exp
+from src.helpers import get_NM, get_f_stats, save_results, check_exp, get_alpha
 from src.data import get_data
 from src.estimators import estimate_beta
 from src.loss import beta_error, kt_distance
@@ -22,9 +22,10 @@ def parse_args():
     parser.add_argument('ld', type=float,
                         help='Lambda d. Min eig value of data' +
                         ' covariance where max is 1.')
+    parser.add_argument('pe', type=float, help='Probability of error.')
     parser.add_argument('d', type=int, help='Dimensionality.')
-    parser.add_argument('N1', type=int, help='Smallest N')
-    parser.add_argument('N2', type=int, help='Largest N')
+    parser.add_argument('N1', type=int, help='Smallest N.')
+    parser.add_argument('N2', type=int, help='Largest N.')
     parser.add_argument('k', type=int, choices=[1, 2, 3, 4],
                         help='Defines M. 1: N, 2: NloglogN' +
                         ', 3: NlogN, 4: N*sqrt(N).')
@@ -39,6 +40,7 @@ if __name__ == "__main__":
     # Get inputs (parameters)
     args = parse_args()
     ld = args.ld
+    pe = args.pe
     d = args.d
     N1 = args.N1
     N2 = args.N2
@@ -59,6 +61,8 @@ if __name__ == "__main__":
     # Beta and feature stats change with seed
     beta = np.random.multivariate_normal(np.zeros(d), np.eye(d)*10)
     f_mean, f_cov = get_f_stats(d, ld)
+    # Find alpha that gives required prob of error
+    alpha = get_alpha(pe, beta, f_cov)
 
     # This for can be run embarrasingly parallel.
     # But I'm embarrassingly lazy to do that.
@@ -66,13 +70,13 @@ if __name__ == "__main__":
     for i, N in enumerate(Ns):
         M = Ms[i]
         # Sample data
-        X, XC, yn, y = get_data(N, M, beta, f_mean, f_cov)
+        X, XC, yn, y = get_data(N, M, beta, f_mean, f_cov, alpha)
         # Estimate beta
         e_beta = estimate_beta(X, XC, yn, method)
         # Calculate error of beta
         err_angle, err_norm = beta_error(e_beta, beta, f_cov, method)
         # Test e_beta on new data for kendall tau
-        test_X, _, _, _ = get_data(500, 1, beta, f_mean, f_cov)
+        test_X, _, _, _ = get_data(500, 1, beta, f_mean, f_cov, alpha)
         scores = test_X @ beta
         e_scores = test_X @ e_beta
         kt_dist = kt_distance(scores, e_scores)
@@ -84,6 +88,7 @@ if __name__ == "__main__":
         results[N]['kt_dist'] = kt_dist
     results['seed'] = args.seed
     results['ld'] = ld
+    results['pe'] = pe
     results['d'] = d
     results['k'] = k
     results['method'] = method
