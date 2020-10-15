@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 from collections import defaultdict
 from time import time
 import numpy as np
-from src.helpers import get_f_stats, save_results, check_exp
+from src.helpers import get_f_stats, save_results, check_exp, get_alpha, get_c1
 from src.data import get_data
 from src.estimators import estimate_beta
 from src.loss import beta_error, kt_distance
@@ -51,14 +51,16 @@ if __name__ == "__main__":
 
     # Start Experiment if not already finished
     check_exp(args, 'synth_by_M')
+
     # Get M values to run for
     Ms = np.logspace(np.log10(300), np.log10(M)).astype(np.int32)
-
     # Beta and feature stats change with seed
     beta = np.random.multivariate_normal(np.zeros(d), np.eye(d)*10)
     f_mean, f_cov = get_f_stats(d, ld)
     # Get alpha that results in prob of error
     alpha = get_alpha(pe, beta, f_cov)
+    e_c1 = get_c1(alpha, beta, f_cov)
+    print('pe: %.1f | alpha: %.3f | c1: %.3f' % (pe, alpha, e_c1))
 
     # This for can be run embarrasingly parallel.
     # But I'm embarrassingly lazy to do that.
@@ -69,7 +71,7 @@ if __name__ == "__main__":
         # Estimate beta
         e_beta = estimate_beta(X, XC, yn, method)
         # Calculate error of beta
-        err_angle, err_norm = beta_error(e_beta, beta, f_cov, method)
+        err_angle, err_norm = beta_error(e_beta, beta, method, e_c1)
         # Test e_beta on new data for kendall tau
         test_X, _, _, _ = get_data(500, 1, beta, f_mean, f_cov, alpha)
         scores = test_X @ beta

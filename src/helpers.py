@@ -53,8 +53,10 @@ def read_results_synth(path):
     seeds = list({f[0] for f in sfiles})
     # Different ld values
     lds = list({f[1] for f in sfiles})
+    # Different pe values
+    pes = list({f[2] for f in sfiles})
     # Different d values
-    ds = list({f[2] for f in sfiles})
+    ds = list({f[3] for f in sfiles})
     # Different k values
     ks = list({f[-2] for f in sfiles})
     # Different method values
@@ -69,17 +71,19 @@ def read_results_synth(path):
         results[seed] = {}
         for ld in lds:
             results[seed][ld] = {}
-            for d in ds:
-                results[seed][ld][d] = {}
-                for k in ks:
-                    results[seed][ld][d][k] = {}
-                    for method in methods:
-                        results[seed][ld][d][k][method] = {}
-                        for metric in metrics:
-                            results[seed][ld][d][k][method][metric] = None
+            for pe in pes:
+                results[seed][ld][pe] = {}
+                for d in ds:
+                    results[seed][ld][pe][d] = {}
+                    for k in ks:
+                        results[seed][ld][pe][d][k] = {}
+                        for method in methods:
+                            results[seed][ld][pe][d][k][method] = {}
+                            for metric in metrics:
+                                results[seed][ld][pe][d][k][method][metric] = None
 
     for f in files:
-        seed, ld, d, _, _, k, method = f.split('-')
+        seed, ld, pe, d, _, _, k, method = f.split('-')
 
         with open(path+f, 'rb') as fb:
             resd = pickle.load(fb)  # Results dictionary
@@ -91,9 +95,9 @@ def read_results_synth(path):
             metric_values = np.zeros(Ns[d].size)
             for i, N in enumerate(resd['Ns']):
                 metric_values[i] = resd[N][metric]
-            results[seed][ld][d][k][method][metric] = metric_values
+            results[seed][ld][pe][d][k][method][metric] = metric_values
 
-    return seeds, lds, ds, Ns, Ms, ks, methods, metrics, results
+    return seeds, lds, pes, ds, Ns, Ms, ks, methods, metrics, results
 
 
 def read_results_synth_by_M(path):
@@ -112,8 +116,10 @@ def read_results_synth_by_M(path):
     seeds = list({f[0] for f in sfiles})
     # Different ld values
     lds = list({f[1] for f in sfiles})
+    # Different pe values
+    pes = list({f[2] for f in sfiles})
     # Different d values
-    ds = list({f[2] for f in sfiles})
+    ds = list({f[3] for f in sfiles})
     # Different method values
     methods = list({f[-1] for f in sfiles})
     # Different N and M values for each d
@@ -126,15 +132,17 @@ def read_results_synth_by_M(path):
         results[seed] = {}
         for ld in lds:
             results[seed][ld] = {}
-            for d in ds:
-                results[seed][ld][d] = {}
-                for method in methods:
-                    results[seed][ld][d][method] = {}
-                    for metric in metrics:
-                        results[seed][ld][d][method][metric] = None
+            for pe in pes:
+                results[seed][ld][pe] = {}
+                for d in ds:
+                    results[seed][ld][pe][d] = {}
+                    for method in methods:
+                        results[seed][ld][pe][d][method] = {}
+                        for metric in metrics:
+                            results[seed][ld][pe][d][method][metric] = None
 
     for f in files:
-        seed, ld, d, _, M, method = f.split('-')
+        seed, ld, pe, d, _, M, method = f.split('-')
 
         with open(path+f, 'rb') as fb:
             resd = pickle.load(fb)  # Results dictionary
@@ -146,9 +154,9 @@ def read_results_synth_by_M(path):
             metric_values = np.zeros(Ms[d].size)
             for i, M in enumerate(resd['Ms']):
                 metric_values[i] = resd[M][metric]
-            results[seed][ld][d][method][metric] = metric_values
+            results[seed][ld][pe][d][method][metric] = metric_values
 
-    return seeds, lds, ds, Ns, Ms, methods, metrics, results
+    return seeds, lds, pes, ds, Ns, Ms, methods, metrics, results
 
 
 def check_exp(args, name):
@@ -193,7 +201,7 @@ def get_exp_path(args, name):
     return file_path
 
 
-def get_c1(beta, f_cov):
+def get_c1(alpha, beta, f_cov):
     """
     Estimate c1 = 4E[sigmoid'(beta^T(X-Y))]
     """
@@ -207,9 +215,9 @@ def get_c1(beta, f_cov):
     if np.trapz(pdf, x) < 0.999:
         print('c1 accuracy may be low.')
     # sigmoid(x)
-    sig_x = (1 + np.exp(-x))**-1
+    sig_x = (1+np.exp(-alpha*x))**-1
     # sigmoid'(x)pdf(x)
-    y = sig_x*(1-sig_x)*pdf
+    y = alpha*sig_x*(1-sig_x)*pdf
     e_c1 = 4*np.trapz(y, x)
 
     return e_c1

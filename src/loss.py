@@ -5,7 +5,7 @@ import numpy as np
 from helpers import get_c1
 
 
-def beta_error(e_beta, beta, f_cov, method):
+def beta_error(e_beta, beta, method, e_c1):
     """
     Find the cosine of angle between e_beta and beta
     Estimate c1 by the approximation of sigmoid integral
@@ -19,7 +19,6 @@ def beta_error(e_beta, beta, f_cov, method):
     # If averaging
     if method == 1:
         # Get estimated c1
-        e_c1 = get_c1(beta, f_cov)
         err_beta = np.linalg.norm(e_beta - e_c1*beta)
     # else logistic
     else:
