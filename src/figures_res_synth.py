@@ -101,6 +101,8 @@ def plot_SNbd(path, eps1, eps2):
             _, ax = plt.subplots()
             markers = cycle(markers_list)
             for pe in pes:
+                if pe == '0.2':
+                    continue
                 if float(ld) == 1:
                     epsilon = eps1
                 else:
@@ -109,13 +111,13 @@ def plot_SNbd(path, eps1, eps2):
                 for j, d in enumerate(ds):
                     y = np.zeros((len(seeds), size))
                     for i, seed in enumerate(seeds):
-                        value = results[seed][ld][pe][d][k]['1']['err_norm']
+                        value = results[seed][ld][pe][d][k]['1']['err_angle']
                         y[i] = value
                     # Mean and std of metric
                     my = y.mean(axis=0)
                     loc = np.where(epsilon > my)[0][0]
                     min_N[j] = Ns[ds[0]][loc]
-                label = r'$\p_e=%s$' % pe
+                label = r'$p_e=%s$' % pe
                 plt.plot(x, min_N, next(markers), label=label, markersize=3)
             plt.legend(loc='upper left', fontsize=10)
             plt.grid()
@@ -127,6 +129,40 @@ def plot_SNbd(path, eps1, eps2):
             plt.savefig(path+'../Syn-dbN-%.1f-%s-%s.pdf' % (epsilon, ld, k),
                         format='pdf', transparent=True)
             plt.close()
+
+        for k in ks:
+            for pe in pes:
+                # Now in the same figure
+                _, ax = plt.subplots()
+                markers = cycle(markers_list)
+                for ld in lds:
+                    if float(ld) == 1:
+                        epsilon = eps1
+                    else:
+                        epsilon = eps2
+                    min_N = np.zeros(len(ds))
+                    for j, d in enumerate(ds):
+                        y = np.zeros((len(seeds), size))
+                        for i, seed in enumerate(seeds):
+                            value = results[seed][ld][pe][d][k]['1']['err_angle']
+                            y[i] = value
+                        # Mean and std of metric
+                        my = y.mean(axis=0)
+                        loc = np.where(epsilon > my)[0][0]
+                        min_N[j] = Ns[ds[0]][loc]
+                    label = r'$\lambda_d = %s$' % ld
+                    plt.plot(x, min_N, next(markers), label=label, markersize=3)
+                plt.legend(loc='upper left', fontsize=10)
+                plt.grid()
+                plt.ylabel(r'$N$', fontsize=16)
+                ax.annotate(r'$d$', xy=(.95, 0), xytext=(18, -5),
+                            ha='left', va='top', xycoords='axes fraction',
+                            textcoords='offset points', fontsize=16)
+                plt.tight_layout()
+                plt.savefig(path+'../Syn-dbN-lambda-%.1f-%s-%s.pdf'
+                            % (epsilon, pe, k),
+                            format='pdf', transparent=True)
+                plt.close()
 
 
 if __name__ == '__main__':
