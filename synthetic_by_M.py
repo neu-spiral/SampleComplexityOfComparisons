@@ -7,7 +7,8 @@ from argparse import ArgumentParser
 from collections import defaultdict
 from time import time
 import numpy as np
-from src.helpers import get_f_stats, save_results, check_exp, get_alpha, get_c1
+from src.helpers import get_f_stats, save_results, check_exp, get_alpha, \
+        get_c1, get_NM
 from src.data import get_data
 from src.estimators import estimate_beta
 from src.loss import beta_error, kt_distance
@@ -53,7 +54,7 @@ if __name__ == "__main__":
     check_exp(args, 'synth_by_M')
 
     # Get M values to run for
-    Ms = np.logspace(np.log10(300), np.log10(M)).astype(np.int32)
+    Ms, _ = get_NM(1, 300, M)
     # Beta and feature stats change with seed
     beta = np.random.multivariate_normal(np.zeros(d), np.eye(d)*10)
     f_mean, f_cov = get_f_stats(d, ld)

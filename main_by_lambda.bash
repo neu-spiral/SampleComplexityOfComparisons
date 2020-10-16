@@ -2,7 +2,7 @@
 
 for seed in {0..9..1}
 do
-    for ld in 0.005
+    for ld in 0.005 0.08791667 0.17083333 0.25375 0.33666667 0.41958333 0.5025 0.58541667 0.66833333 0.75125 0.83416667 0.91708333 1
     do
         for pe in 0 0.2 0.4
         do
@@ -13,7 +13,6 @@ do
                     for method in 1
                     do
                         sbatch --job-name=$seed${ld:(-2)}$d$k$method --output=z.out --error=z.err single.bash $seed $ld $pe $d 300 30000 $k $method
-                        sbatch --job-name=$seed${ld:(-2)}$d$k$method --output=zM.out --error=zM.err single_by_M.bash $seed $ld $pe $d 2500 50000 $method
                     done
                 done
             done

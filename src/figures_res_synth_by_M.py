@@ -2,13 +2,14 @@
 Read and plot synthetic experiment results
 """
 from pathlib import Path
+from argparse import ArgumentParser
 from itertools import cycle
 import numpy as np
 import matplotlib.pyplot as plt
 from helpers import read_results_synth_by_M
 
 
-def plot_SmbM(path):
+def plot_SmbM(path, legend, y_label):
     """
     Plot synthetic metric by M.
 
@@ -18,9 +19,10 @@ def plot_SmbM(path):
     seeds, lds, pes, ds, Ns, Ms, methods, _, results = \
         read_results_synth_by_M(path)
     ds.sort(key=float)
+    
+    markers_list = ['x-', 's--', '^-.', 'o-:']
 
     plt.rc('font', family='serif')
-    markers_list = ['x-', 's-', '^-', 'o-', '>-']
     for metric in ['err_norm', 'err_angle']:
         for method in methods:
             for ld in lds:
@@ -54,11 +56,13 @@ def plot_SmbM(path):
                     ax.annotate(r'$M$', xy=(.95, 0), xytext=(15, -5),
                                 ha='left', va='top', xycoords='axes fraction',
                                 textcoords='offset points', fontsize=16)
-                    #plt.ylabel(label, fontsize=16)
+                    if y_label:
+                        plt.ylabel(label, fontsize=16)
                     plt.xscale('log')
                     plt.ylim(0, 3)
                     plt.grid()
-                    #plt.legend(loc='upper right', fontsize=10)
+                    if legend:
+                        plt.legend(loc='upper left', fontsize=20)
                     plt.tight_layout()
                     plt.savefig(path+'../Syn-mbM-%s-%s-%s-%s.pdf'
                                 % (metric, ld, pe, method),
@@ -67,5 +71,10 @@ def plot_SmbM(path):
 
 
 if __name__ == '__main__':
+    parser = ArgumentParser()
+    parser.add_argument('-l', type=int)
+    parser.add_argument('-y', type=int)
+    args = parser.parse_args()
+
     home_path = str(Path.home())
-    plot_SmbM(home_path + '/Res-Synth-M/')
+    plot_SmbM(home_path + '/Res-Synth-M/', args.l, args.y)

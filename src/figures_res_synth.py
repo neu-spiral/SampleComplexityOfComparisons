@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from helpers import read_results_synth
 
 
-def plot_SmbN(path, eps1, eps2):
+def plot_SmbN(path, eps1, eps2, legend, y_axis):
     """
     Plot synthetic metrics as a function of N.
 
@@ -24,7 +24,7 @@ def plot_SmbN(path, eps1, eps2):
     ds.sort(key=float)
 
     plt.rc('font', family='serif')
-    markers_list = ['x-', 's-', '^-', 'o-', '>-']
+    markers_list = ['x-', 's--', '^-.', 'o-:']
 
     for metric in metrics:
         for method in methods:
@@ -71,11 +71,13 @@ def plot_SmbN(path, eps1, eps2):
                         ax.annotate(r'$N$', xy=(.95, 0), xytext=(18, -5),
                                     ha='left', va='top', xycoords='axes fraction',
                                     textcoords='offset points', fontsize=16)
-                        #plt.ylabel(label, fontsize=16)
+                        if y_axis:
+                            plt.ylabel(label, fontsize=16)
                         # plt.xscale('log')
                         plt.ylim(0, lim)
                         plt.grid()
-                        #plt.legend(loc='upper right', fontsize=10)
+                        if legend:
+                            plt.legend(loc='upper right', fontsize=20)
                         plt.tight_layout()
                         plt.savefig(path+'../Syn-Nbm-%s-%s-%s-%s-%s.pdf'
                                     % (metric, ld, pe, k, method),
@@ -83,16 +85,18 @@ def plot_SmbN(path, eps1, eps2):
                         plt.close()
 
 
-def plot_SNbd(path, eps1, eps2):
+def plot_SNbd(path, eps1, eps2, legend, y_axis):
     """
     Plot minimum N that achieves epsilon by d
     """
     seeds, lds, pes, ds, Ns, _, ks, _, _, results = read_results_synth(path)
     size = len(Ns[ds[0]])
+    lds.sort(key=float)
     ds.sort(key=float)
     pes.sort(key=float)
-    markers_list = ['x-', 's-', '^-', 'o-', '>-']
 
+    markers_list = ['x-', 's--', '^-.', 'o-:']
+    
     x = [int(d) for d in ds]
 
     plt.rc('font', family='serif')
@@ -118,9 +122,11 @@ def plot_SNbd(path, eps1, eps2):
                     min_N[j] = Ns[ds[0]][loc]
                 label = r'$p_e=%s$' % pe
                 plt.plot(x, min_N, next(markers), label=label, markersize=3)
-            #plt.legend(loc='upper left', fontsize=10)
+            if legend:
+                plt.legend(loc='upper left', fontsize=20)
             plt.grid()
-            #plt.ylabel(r'$N$', fontsize=16)
+            if y_axis:
+                plt.ylabel(r'$N$', fontsize=16)
             plt.ylim(0, 40000)
             ax.annotate(r'$d$', xy=(.95, 0), xytext=(18, -5),
                         ha='left', va='top', xycoords='axes fraction',
@@ -152,9 +158,11 @@ def plot_SNbd(path, eps1, eps2):
                         min_N[j] = Ns[ds[0]][loc]
                     label = r'$\lambda_d = %s$' % ld
                     plt.plot(x, min_N, next(markers), label=label, markersize=3)
-                #plt.legend(loc='upper left', fontsize=10)
+                if legend:
+                    plt.legend(loc='upper left', fontsize=20)
                 plt.grid()
-                #plt.ylabel(r'$N$', fontsize=16)
+                if y_axis:
+                    plt.ylabel(r'$N$', fontsize=16)
                 plt.ylim(0, 40000)
                 ax.annotate(r'$d$', xy=(.95, 0), xytext=(18, -5),
                             ha='left', va='top', xycoords='axes fraction',
@@ -168,6 +176,8 @@ def plot_SNbd(path, eps1, eps2):
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='Run synthetic experiments.')
+    parser.add_argument('-l', type=int)
+    parser.add_argument('-y', type=int)
     parser.add_argument('-eps1', type=float, default=0.25,
                         help='Epsilon val for ld=1.')
     parser.add_argument('-eps2', type=float, default=0.25,
@@ -175,5 +185,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     home_path = str(Path.home())
-    plot_SmbN(home_path + '/Res-Synth/', args.eps1, args.eps2)
-    plot_SNbd(home_path + '/Res-Synth/', args.eps1, args.eps2)
+    plot_SmbN(home_path + '/Res-Synth/', args.eps1, args.eps2, args.l, args.y)
+    plot_SNbd(home_path + '/Res-Synth/', args.eps1, args.eps2, args.l, args.y)
