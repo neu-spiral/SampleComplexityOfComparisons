@@ -19,18 +19,22 @@ def plot_SmbM(path, legend, y_label):
     seeds, lds, pes, ds, Ns, Ms, methods, _, results = \
         read_results_synth_by_M(path)
     ds.sort(key=float)
-    
-    markers_list = ['x-', 's--', '^-.', 'o-:']
+
+    markers_list = ['x-', 's--', '^-.', 'o:']
 
     plt.rc('font', family='serif')
     for metric in ['err_norm', 'err_angle']:
         for method in methods:
             for ld in lds:
+                if ld != '0.005':
+                    continue
                 for pe in pes:
                     # Now in the same figure
                     markers = cycle(markers_list)
                     _, ax = plt.subplots()
                     for d in ds:
+                        if d not in ['10', '90', '250']:
+                            continue
                         N = Ns[d]
                         M = Ms[d]
                         x = M
@@ -62,7 +66,7 @@ def plot_SmbM(path, legend, y_label):
                     plt.ylim(0, 3)
                     plt.grid()
                     if legend:
-                        plt.legend(loc='upper left', fontsize=20)
+                        plt.legend(loc='upper left', fontsize=16)
                     plt.tight_layout()
                     plt.savefig(path+'../Syn-mbM-%s-%s-%s-%s.pdf'
                                 % (metric, ld, pe, method),
