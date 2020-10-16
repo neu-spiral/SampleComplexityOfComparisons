@@ -54,11 +54,11 @@ def plot_SmbM(path):
                     ax.annotate(r'$M$', xy=(.95, 0), xytext=(15, -5),
                                 ha='left', va='top', xycoords='axes fraction',
                                 textcoords='offset points', fontsize=16)
-                    plt.ylabel(label, fontsize=16)
+                    #plt.ylabel(label, fontsize=16)
                     plt.xscale('log')
                     plt.ylim(0, 3)
                     plt.grid()
-                    plt.legend(loc='upper right', fontsize=10)
+                    #plt.legend(loc='upper right', fontsize=10)
                     plt.tight_layout()
                     plt.savefig(path+'../Syn-mbM-%s-%s-%s-%s.pdf'
                                 % (metric, ld, pe, method),

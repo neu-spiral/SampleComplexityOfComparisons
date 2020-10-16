@@ -55,6 +55,7 @@ def plot_SmbN(path, eps1, eps2):
                                      markersize=3)
                             plt.fill_between(x, my - sdy, my + sdy, alpha=0.2)
                         if metric == 'err_angle':
+                            plt.plot(x, line, 'k-.')
                             label = r'$\angle(\hat\beta, \beta)$'
                             lim = 1.5
                         elif metric == 'err_norm':
@@ -70,11 +71,11 @@ def plot_SmbN(path, eps1, eps2):
                         ax.annotate(r'$N$', xy=(.95, 0), xytext=(18, -5),
                                     ha='left', va='top', xycoords='axes fraction',
                                     textcoords='offset points', fontsize=16)
-                        plt.ylabel(label, fontsize=16)
+                        #plt.ylabel(label, fontsize=16)
                         # plt.xscale('log')
                         plt.ylim(0, lim)
                         plt.grid()
-                        plt.legend(loc='upper right', fontsize=10)
+                        #plt.legend(loc='upper right', fontsize=10)
                         plt.tight_layout()
                         plt.savefig(path+'../Syn-Nbm-%s-%s-%s-%s-%s.pdf'
                                     % (metric, ld, pe, k, method),
@@ -101,8 +102,6 @@ def plot_SNbd(path, eps1, eps2):
             _, ax = plt.subplots()
             markers = cycle(markers_list)
             for pe in pes:
-                if pe == '0.2':
-                    continue
                 if float(ld) == 1:
                     epsilon = eps1
                 else:
@@ -119,14 +118,15 @@ def plot_SNbd(path, eps1, eps2):
                     min_N[j] = Ns[ds[0]][loc]
                 label = r'$p_e=%s$' % pe
                 plt.plot(x, min_N, next(markers), label=label, markersize=3)
-            plt.legend(loc='upper left', fontsize=10)
+            #plt.legend(loc='upper left', fontsize=10)
             plt.grid()
-            plt.ylabel(r'$N$', fontsize=16)
+            #plt.ylabel(r'$N$', fontsize=16)
+            plt.ylim(0, 40000)
             ax.annotate(r'$d$', xy=(.95, 0), xytext=(18, -5),
                         ha='left', va='top', xycoords='axes fraction',
                         textcoords='offset points', fontsize=16)
             plt.tight_layout()
-            plt.savefig(path+'../Syn-dbN-%.1f-%s-%s.pdf' % (epsilon, ld, k),
+            plt.savefig(path+'../Syn-dbN-%.2f-%s-%s.pdf' % (epsilon, ld, k),
                         format='pdf', transparent=True)
             plt.close()
 
@@ -152,14 +152,15 @@ def plot_SNbd(path, eps1, eps2):
                         min_N[j] = Ns[ds[0]][loc]
                     label = r'$\lambda_d = %s$' % ld
                     plt.plot(x, min_N, next(markers), label=label, markersize=3)
-                plt.legend(loc='upper left', fontsize=10)
+                #plt.legend(loc='upper left', fontsize=10)
                 plt.grid()
-                plt.ylabel(r'$N$', fontsize=16)
+                #plt.ylabel(r'$N$', fontsize=16)
+                plt.ylim(0, 40000)
                 ax.annotate(r'$d$', xy=(.95, 0), xytext=(18, -5),
                             ha='left', va='top', xycoords='axes fraction',
                             textcoords='offset points', fontsize=16)
                 plt.tight_layout()
-                plt.savefig(path+'../Syn-dbN-lambda-%.1f-%s-%s.pdf'
+                plt.savefig(path+'../Syn-dbN-lambda-%.2f-%s-%s.pdf'
                             % (epsilon, pe, k),
                             format='pdf', transparent=True)
                 plt.close()
@@ -167,9 +168,9 @@ def plot_SNbd(path, eps1, eps2):
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='Run synthetic experiments.')
-    parser.add_argument('-eps1', type=float, default=0.5,
+    parser.add_argument('-eps1', type=float, default=0.25,
                         help='Epsilon val for ld=1.')
-    parser.add_argument('-eps2', type=float, default=0.5,
+    parser.add_argument('-eps2', type=float, default=0.25,
                         help='Epsilon val for ld!=1.')
     args = parser.parse_args()
 
