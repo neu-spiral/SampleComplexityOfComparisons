@@ -26,7 +26,7 @@ def plot_SmbM(path, legend, y_label):
     for metric in ['err_norm', 'err_angle']:
         for method in methods:
             for ld in lds:
-                if ld != '0.005':
+                if ld not in ['0.005', '1.000']:
                     continue
                 for pe in pes:
                     # Now in the same figure
@@ -49,13 +49,15 @@ def plot_SmbM(path, legend, y_label):
                                  markersize=3)
                         plt.fill_between(x, my - sdy, my + sdy, alpha=0.2)
                     # plt.axvline(N)
-                    plt.axvline(N*np.log(N), ls='--', color='k', label=r'$M=N\log N$')
+                    plt.axvline(N*np.log(N), ls='--', color='k')
                     if metric == 'err_norm':
+                        lim = 4
                         if method == '1':
                             label = r'$||\hat\beta - c_1\beta||$'
                         elif method == '2':
                             label = r'$||\hat\beta - \beta||$'
                     elif metric == 'err_angle':
+                        lim = 1.5
                         label = r'$\angle (\hat\beta, \beta)$'
                     ax.annotate(r'$M$', xy=(.95, 0), xytext=(15, -5),
                                 ha='left', va='top', xycoords='axes fraction',
@@ -63,10 +65,10 @@ def plot_SmbM(path, legend, y_label):
                     if y_label:
                         plt.ylabel(label, fontsize=16)
                     plt.xscale('log')
-                    plt.ylim(0, 3)
+                    plt.ylim(0, lim)
                     plt.grid()
                     if legend:
-                        plt.legend(loc='upper left', fontsize=16)
+                        plt.legend(loc='upper right', fontsize=16)
                     plt.tight_layout()
                     plt.savefig(path+'../Syn-mbM-%s-%s-%s-%s.pdf'
                                 % (metric, ld, pe, method),

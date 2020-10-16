@@ -27,10 +27,12 @@ def plot_SmbN(path, eps1, eps2, legend, y_axis):
     markers_list = ['x-', 's--', '^-.', 'o:']
 
     for metric in metrics:
+        if metric == 'kt_dist':
+            continue
         for method in methods:
             for k in ks:
                 for ld in lds:
-                    if ld != '0.005':
+                    if ld not in ['0.005', '1.000']:
                         continue
                     for pe in pes:
                         # Now in the same figure
@@ -44,7 +46,7 @@ def plot_SmbN(path, eps1, eps2, legend, y_axis):
                             if (int(d)-10) % 80 != 0:
                                 continue
                             if ld == '1.00':
-                                line = eps1*np.ones(Ns[d].size)
+                                line = np.ones(Ns[d].size)
                             else:
                                 line = eps2*np.ones(Ns[d].size)
                             x = Ns[d]
@@ -63,7 +65,8 @@ def plot_SmbN(path, eps1, eps2, legend, y_axis):
                             label = r'$\angle(\hat\beta, \beta)$'
                             lim = 1.5
                         elif metric == 'err_norm':
-                            plt.plot(x, line, 'k-.')
+                            if ld != '1.000':
+                                plt.plot(x, line, 'k-.')
                             if method == '1':
                                 label = r'$||\hat\beta - c_1\beta||$'
                             elif method == '2':
@@ -77,7 +80,7 @@ def plot_SmbN(path, eps1, eps2, legend, y_axis):
                                     textcoords='offset points', fontsize=16)
                         if y_axis:
                             plt.ylabel(label, fontsize=16)
-                        # plt.xscale('log')
+                        plt.xscale('log')
                         plt.ylim(0, lim)
                         plt.grid()
                         if legend:
@@ -108,7 +111,7 @@ def plot_SNbd(path, eps1, eps2, legend, y_axis):
             _, ax = plt.subplots()
             markers = cycle(markers_list)
             for ld in lds:
-                if ld not in ['0.005', '0.1', '1']:
+                if ld not in ['0.005', '0.100', '1.000']:
                     continue
                 if float(ld) == 1:
                     epsilon = eps1
@@ -127,11 +130,11 @@ def plot_SNbd(path, eps1, eps2, legend, y_axis):
                 label = r'$\lambda_d = %s$' % ld
                 plt.plot(x, min_N, next(markers), label=label, markersize=3)
             if legend:
-                plt.legend(loc='upper left', fontsize=16)
+                plt.legend(loc='upper right', fontsize=16)
             plt.grid()
             if y_axis:
                 plt.ylabel(r'$N$', fontsize=16)
-            plt.ylim(0, 40000)
+            plt.ylim(0, 30500)
             ax.annotate(r'$d$', xy=(.95, 0), xytext=(18, -5),
                         ha='left', va='top', xycoords='axes fraction',
                         textcoords='offset points', fontsize=16)
@@ -148,13 +151,13 @@ def plot_SNbld(path, eps1, eps2, legend, y_axis):
     """
     seeds, lds, pes, ds, Ns, _, ks, _, _, results = read_results_synth(path)
     size = len(Ns[ds[0]])
-    lds.sort(key=float)
     ds.sort(key=float)
+    lds.sort(key=lambda x: -1*float(x))
     pes.sort(key=float)
 
     markers_list = ['x-', 's--', '^-.', 'o:']
 
-    x = [int(d) for d in ds]
+    x = [float(ld) for ld in lds]
     for k in ks:
         for pe in pes:
             # Now in the same figure
@@ -163,7 +166,7 @@ def plot_SNbld(path, eps1, eps2, legend, y_axis):
             for d in ds:
                 if d not in ['10', '90', '250']:
                     continue
-                min_N = np.zeros(len(ds))
+                min_N = np.zeros(len(lds))
                 for j, ld in enumerate(lds):
                     if float(ld) == 1:
                         epsilon = eps1
@@ -180,11 +183,11 @@ def plot_SNbld(path, eps1, eps2, legend, y_axis):
                 label = r'$d = %s$' % d
                 plt.plot(x, min_N, next(markers), label=label, markersize=3)
             if legend:
-                plt.legend(loc='upper left', fontsize=16)
+                plt.legend(loc='upper right', fontsize=16)
             plt.grid()
             if y_axis:
                 plt.ylabel(r'$N$', fontsize=16)
-            plt.ylim(0, 40000)
+            plt.ylim(0, 30500)
             ax.annotate(r'$\lambda_d$', xy=(.95, 0), xytext=(18, -5),
                         ha='left', va='top', xycoords='axes fraction',
                         textcoords='offset points', fontsize=16)
@@ -199,13 +202,11 @@ if __name__ == '__main__':
     parser = ArgumentParser(description='Run synthetic experiments.')
     parser.add_argument('-l', type=int)
     parser.add_argument('-y', type=int)
-    parser.add_argument('-eps1', type=float, default=0.25,
+    parser.add_argument('-eps', type=float, default=0.3,
                         help='Epsilon val for ld=1.')
-    parser.add_argument('-eps2', type=float, default=0.25,
-                        help='Epsilon val for ld!=1.')
     args = parser.parse_args()
 
     home_path = str(Path.home())
-    plot_SmbN(home_path + '/Res-Synth/', args.eps1, args.eps2, args.l, args.y)
-    plot_SNbd(home_path + '/Res-Synth/', args.eps1, args.eps2, args.l, args.y)
-    plot_SNbld(home_path + '/Res-Synth/', args.eps1, args.eps2, args.l, args.y)
+    plot_SmbN(home_path + '/Res-Synth/', args.eps, args.eps, args.l, args.y)
+    plot_SNbd(home_path + '/Res-Synth/', args.eps, args.eps, args.l, args.y)
+    plot_SNbld(home_path + '/Res-Synth/', args.eps, args.eps, args.l, args.y)
