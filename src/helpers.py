@@ -80,7 +80,8 @@ def read_results_synth(path):
                         for method in methods:
                             results[seed][ld][pe][d][k][method] = {}
                             for metric in metrics:
-                                results[seed][ld][pe][d][k][method][metric] = None
+                                results[seed][ld][pe][d][k][method][metric] = \
+                                        None
 
     for f in files:
         seed, ld, pe, d, _, _, k, method = f.split('-')
@@ -297,9 +298,37 @@ def get_NM(k, N1, N2):
     return N, M
 
 
-if __name__ == '__main__':
-    d = 10
-    pe = 0.42
-    beta = np.random.rand(d)
-    f_cov = np.eye(d)
-    print(get_alpha(pe, beta, f_cov))
+def get_max_acc(edges):
+    """
+    Computes the maximum accuracy any classifier could
+    achieve on given edges
+    : edges: tuple. ([u, v], ...)
+    """
+    unq_comb = list(edges)
+    for edge in unq_comb:
+        u, v = edge
+        cuv = unq_comb.count([u, v])
+        cvu = unq_comb.count([v, u])
+        # Now if both permutations exist,
+        # remove the the one with smaller count
+        if cvu:
+            # Fewer [v, u] exists
+            if cuv > cvu:
+                count = cvu
+                edge_to_remove = [v, u]
+            # Fewer [u, v] exists
+            else:
+                count = cuv
+                edge_to_remove = [u, v]
+            # Now remove
+            # print([u, v], '\t', cuv, '\t', cvu)
+            for _ in range(count):
+                unq_comb.remove(edge_to_remove)
+    # Number of winning edges
+    num_unq_comb = len(unq_comb)
+    # Number of edges
+    num_comb = len(edges)
+    # Max accuracy
+    max_acc = num_unq_comb/num_comb
+
+    return max_acc

@@ -4,6 +4,7 @@ sushi experiments
 """
 from argparse import ArgumentParser
 from time import time
+import numpy as np
 from src.helpers import save_results, check_exp
 from src.data import get_sushi_data
 from src.estimators import estimate_beta
@@ -42,23 +43,34 @@ if __name__ == "__main__":
     results['Ns'] = Ns
     results['K'] = K
     for N in Ns:
-        results[N] = [[] for _ in range(K)]
+        results[N] = {}
+        results[N]['acc'] = [[] for _ in range(K)]
+        results[N]['kt_dist'] = [[] for _ in range(K)]
 
     t0 = time()
     # iterate over splits with cross validation k
     for cvk in range(K):
         for N in Ns:
             # Get comparison features, labels
-            X, XC, test_X, yn, scores = get_sushi_data(cvk, N)
+            X, XC, test_X, test_XC, yn, test_yn, test_scores = \
+                    get_sushi_data(cvk, N)
             # Estimate beta
             e_beta = estimate_beta(X, XC, yn, method, gamma)
+
+            # Compute error metrics
+            # Compute accuracy over given edges
+            e_test_y = np.sign(test_XC @ e_beta)
+            correct_test_y = e_test_y == test_yn
+            acc = np.sum(correct_test_y)/len(correct_test_y)
             # Compute kendall tau dist for
             # scores and estimated scores
             e_scores = test_X @ e_beta
-            kt_dist = kt_distance(scores, e_scores)
+            kt_dist = kt_distance(test_scores, e_scores)
             # Print and save results
-            print('cvk:%i | N:%2i | KT:%.3f' % (cvk, N, kt_dist))
-            results[N][cvk] = kt_dist
+            print('cvk:%i | N:%2i | Acc: %.3f | KT:%.3f'
+                  % (cvk, N, acc, kt_dist))
+            results[N]['acc'][cvk] = acc
+            results[N]['kt_dist'][cvk] = kt_dist
     # Save results to disk
     save_results(results, args, 'sushi')
     print('Finished in %.2f seconds.' % (time() - t0))

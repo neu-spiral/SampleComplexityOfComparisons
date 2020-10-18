@@ -5,7 +5,7 @@ from random import choices
 from pathlib import Path
 import pickle
 import numpy as np
-from helpers import cv_edges, get_unq_nodes
+from helpers import cv_edges, get_unq_nodes, get_max_acc
 
 
 def get_data(N, M, beta, f_mean, f_cov, alpha):
@@ -108,9 +108,7 @@ def read_sushi_data(path):
                 if score != -1:
                     scores_b[i].append(score)
 
-    m_scores = np.array([np.mean(x) for x in scores_b])
-    std_scores = np.array([np.std(x) for x in scores_b])
-    scores_b = np.exp(m_scores - 2*std_scores)
+    scores_b = np.array([np.mean(x) for x in scores_b])
 
     return feats, profs, edges, edges_b, scores_b
 
@@ -126,7 +124,8 @@ def split_sushi_data(K):
     """
     print('Reading sushi data...')
     home_path = str(Path.home())
-    X, _, _, edges, scores = read_sushi_data(home_path + '/Data/sushi3-2016/')
+    features, _, _, edges, scores = \
+        read_sushi_data(home_path + '/Data/sushi3-2016/')
     print('Splitting edges per fold...')
     splits = cv_edges(edges, K)
 
@@ -147,10 +146,10 @@ def split_sushi_data(K):
         test_u = get_unq_nodes(test_e)
         print('Train edge count after split: %i' % len(train_e))
         with open(home_path + '/Data/sushi3-2016/split%i' % i, 'wb+') as f:
-            pickle.dump([stats_u, train_e, test_u], f)
+            pickle.dump([stats_u, train_u, train_e, test_u, test_e], f)
 
     with open(home_path + '/Data/sushi3-2016/features', 'wb+') as f:
-        pickle.dump(X, f)
+        pickle.dump(features, f)
 
     with open(home_path + '/Data/sushi3-2016/scores', 'wb+') as f:
         pickle.dump(scores, f)
@@ -180,36 +179,72 @@ def get_sushi_data(cvk, N):
 
     home_path = str(Path.home())
     with open(home_path + '/Data/sushi3-2016/split%i' % cvk, 'rb') as f:
-        stats_u, train_e, test_u = pickle.load(f)
+        stats_u, train_u, train_e, test_u, test_e = pickle.load(f)
 
     stats_u = stats_u[:N]
-
-    unq_nodes = get_unq_nodes(train_e)
-    nodes_to_use = unq_nodes[:N]
+    train_u = train_u[:N]
 
     for edge in train_e:
         u, v = edge
-        if u in nodes_to_use and v in nodes_to_use:
+        if u in train_u and v in train_u:
             continue
         else:
             train_e.remove(edge)
 
-    X = features[stats_u]
-
+    # Get features, comparisons, labels, scores
+    # For training
     M = len(train_e)
-
+    X = features[stats_u]
     u, v = [list(x) for x in zip(*train_e)]
     XC = features[v] - features[u]
     XC[M//2:] *= -1
     yn = np.ones(M)
     yn[M//2:] *= -1
-
+    # For testing
+    M = len(test_e)
     test_X = features[test_u]
-    scores = scores[test_u]
+    u, v = [list(x) for x in zip(*test_e)]
+    test_XC = features[v] - features[u]
+    test_XC[M//2:] *= -1
+    test_yn = np.ones(M)
+    test_yn[M//2:] *= -1
+    test_scores = scores[test_u]
 
-    return X, XC, test_X, yn, scores
+    return X, XC, test_X, test_XC, yn, test_yn, test_scores
+
+
+def get_sushi_max_acc(K):
+    """
+    Computes the maximum accuracy any classifier
+    could achieve on sushi dataset edges.
+    """
+    print('Reading sushi data...')
+    home_path = str(Path.home())
+    _, _, _, edges, _ = read_sushi_data(home_path + '/Data/sushi3-2016/')
+    edges = tuple(edges)  # ([u, v], ...)
+
+    # Compute on all data
+    print('Computing max accuracy on all data...')
+    max_all_acc = get_max_acc(edges)
+    print('Max accuracy on all data is: %.3f.' % max_all_acc)
+
+    # Compute the average on cross validation test sets
+    print('Computing average max accuracy on test sets...')
+    print('Splitting edges per fold...')
+    splits = cv_edges(edges, K)
+
+    max_accs = np.zeros(K)
+
+    for i, split in enumerate(splits):
+        _, test_e = split
+        test_e = tuple(test_e)
+        max_test_acc = get_max_acc(test_e)
+        max_accs[i] = max_test_acc
+
+    print('Average max accuracy on test sets is: %.3f.' % max_accs.mean())
 
 
 if __name__ == '__main__':
     np.random.seed(1)
     split_sushi_data(K=5)
+    get_sushi_max_acc(K=5)

@@ -14,8 +14,9 @@ def plot_NbKT(path):
     Assumes all experiments are finished
     and all results are saved.
     """
-    methods = ['1', '2']
+    methods = ['1']
     Ns = range(22, 41, 2)
+    accs = [np.zeros((5, len(Ns))) for _ in range(len(methods))]
     kts = [np.zeros((5, len(Ns))) for _ in range(len(methods))]
 
     for method in methods:
@@ -23,33 +24,48 @@ def plot_NbKT(path):
             results = pickle.load(f)
             for i, N in enumerate(Ns):
                 for cvk in range(5):
-                    kts[eval(method)-1][cvk][i] = results[N][cvk]
+                    accs[eval(method)-1][cvk][i] = results[N]['acc'][cvk]
+                    kts[eval(method)-1][cvk][i] = results[N]['kt_dist'][cvk]
 
     plt.rc('font', family='serif')
     _, ax = plt.subplots()
     mean_average = kts[0].mean(axis=0)
     sd_average = kts[0].std(axis=0)
 
-    mean_logistic = kts[1].mean(axis=0)
-    sd_logistic = kts[1].std(axis=0)
     plt.plot(Ns, mean_average, label='Average')
     plt.fill_between(Ns, mean_average - sd_average,
                      mean_average + sd_average, alpha=0.2)
 
-    plt.plot(Ns, mean_logistic, label='Logistic')
-    plt.fill_between(Ns, mean_logistic - sd_logistic,
-                     mean_logistic + sd_logistic, alpha=0.2)
-
-    ax.annotate(r'$N$', xy=(.95, 0), xytext=(15, -5),
+    ax.annotate(r'$N$', xy=(.95, 0), xytext=(18, -5),
                 ha='left', va='top', xycoords='axes fraction',
                 textcoords='offset points', fontsize=16)
 
-    plt.ylabel(r'$\tau(\hat\beta, \beta)$', fontsize=16)
+    plt.ylabel(r"Kendall's Tau", fontsize=16)
     plt.ylim(0, 1)
-    plt.legend(loc='upper right', fontsize=20)
+    plt.legend(loc='upper right', fontsize=16)
     plt.grid()
     plt.tight_layout()
-    plt.savefig(path+'../Res-Sushi.pdf', format='pdf', transparent=True)
+    plt.savefig(path+'../Res-Sushi-KT.pdf', format='pdf', transparent=True)
+    plt.close()
+
+    _, ax = plt.subplots()
+    mean_average = accs[0].mean(axis=0)
+    sd_average = accs[0].std(axis=0)
+
+    plt.plot(Ns, mean_average, label='Average')
+    plt.fill_between(Ns, mean_average - sd_average,
+                     mean_average + sd_average, alpha=0.2)
+
+    ax.annotate(r'$N$', xy=(.95, 0), xytext=(18, -5),
+                ha='left', va='top', xycoords='axes fraction',
+                textcoords='offset points', fontsize=16)
+
+    plt.ylabel(r'Accuracy', fontsize=16)
+    plt.ylim(0, 1)
+    plt.legend(loc='upper right', fontsize=16)
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig(path+'../Res-Sushi-Acc.pdf', format='pdf', transparent=True)
     plt.close()
 
 
