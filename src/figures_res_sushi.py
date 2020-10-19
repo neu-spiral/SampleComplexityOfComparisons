@@ -56,6 +56,8 @@ def plot_NbKT(path):
     plt.fill_between(Ns, mean_average - sd_average,
                      mean_average + sd_average, alpha=0.2)
 
+    plt.plot(Ns, 0.677*np.ones(len(Ns)), 'k--')
+
     ax.annotate(r'$N$', xy=(.95, 0), xytext=(18, -5),
                 ha='left', va='top', xycoords='axes fraction',
                 textcoords='offset points', fontsize=16)
