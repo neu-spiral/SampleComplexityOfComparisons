@@ -7,11 +7,12 @@ Then, run:
 mkdir ~/Res-Synth/
 mkdir ~/Res-Synth-M/
 sbatch main.bash
-sbatch main_by_M.bash
+sbatch main_by_d.bash
+sbatch main_by_lambda.bash
 python src/figures_res_synth.py
 python src/figures_res_synth_by_M.py
 ```
-You can run ```local_main.bash``` for testing code locally.
+You can run ```local_main.bash``` etc. for testing code locally.
 
 ### Sushi Experiments
 To replicate results, first download  [Sushi Dataset] (sushi3-2016.zip) and extract to ```~/Data/```.
@@ -20,7 +21,6 @@ Then, run:
 mkdir ~/Res-Sushi/
 python src/data.py
 python sushi.py 1
-python sushi.py 2
 python src/figures_res_sushi.py
 ```
 

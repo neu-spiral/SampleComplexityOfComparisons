@@ -61,14 +61,14 @@ def plot_SmbM(path, legend, y_label):
                         label = r'$\angle (\hat\beta, \beta)$'
                     ax.annotate(r'$M$', xy=(.95, 0), xytext=(15, -5),
                                 ha='left', va='top', xycoords='axes fraction',
-                                textcoords='offset points', fontsize=16)
+                                textcoords='offset points', fontsize=20)
                     if y_label:
-                        plt.ylabel(label, fontsize=16)
+                        plt.ylabel(label, fontsize=20)
                     plt.xscale('log')
                     plt.ylim(0, lim)
                     plt.grid()
                     if legend:
-                        plt.legend(loc='upper right', fontsize=16)
+                        plt.legend(loc='upper right', fontsize=20)
                     plt.tight_layout()
                     plt.savefig(path+'../Syn-mbM-%s-%s-%s-%s.pdf'
                                 % (metric, ld, pe, method),

@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_NbKT(path):
+def plot_mbN(path):
     """
     Plot sushi N by KT dist.
 
@@ -38,11 +38,11 @@ def plot_NbKT(path):
 
     ax.annotate(r'$N$', xy=(.95, 0), xytext=(18, -5),
                 ha='left', va='top', xycoords='axes fraction',
-                textcoords='offset points', fontsize=16)
+                textcoords='offset points', fontsize=20)
 
-    plt.ylabel(r"Kendall's Tau", fontsize=16)
+    plt.ylabel(r"Kendall's Tau", fontsize=20)
     plt.ylim(0, 1)
-    plt.legend(loc='upper right', fontsize=16)
+    # plt.legend(loc='upper right', fontsize=16)
     plt.grid()
     plt.tight_layout()
     plt.savefig(path+'../Res-Sushi-KT.pdf', format='pdf', transparent=True)
@@ -60,11 +60,11 @@ def plot_NbKT(path):
 
     ax.annotate(r'$N$', xy=(.95, 0), xytext=(18, -5),
                 ha='left', va='top', xycoords='axes fraction',
-                textcoords='offset points', fontsize=16)
+                textcoords='offset points', fontsize=20)
 
-    plt.ylabel(r'Accuracy', fontsize=16)
+    plt.ylabel(r'Accuracy', fontsize=20)
     plt.ylim(0, 1)
-    plt.legend(loc='upper right', fontsize=16)
+    # plt.legend(loc='upper right', fontsize=16)
     plt.grid()
     plt.tight_layout()
     plt.savefig(path+'../Res-Sushi-Acc.pdf', format='pdf', transparent=True)
@@ -73,4 +73,4 @@ def plot_NbKT(path):
 
 if __name__ == '__main__':
     home_path = str(Path.home())
-    plot_NbKT(home_path + '/Res-Sushi/')
+    plot_mbN(home_path + '/Res-Sushi/')

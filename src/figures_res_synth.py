@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from helpers import read_results_synth
 
 
-def plot_SmbN(path, eps1, eps2, legend, y_axis):
+def plot_SmbN(path, epsilon, legend, y_axis):
     """
     Plot synthetic metrics as a function of N.
 
@@ -43,12 +43,7 @@ def plot_SmbN(path, eps1, eps2, legend, y_axis):
                                 continue
                             # Remove some d here
                             # So that the plot is not dense
-                            if (int(d)-10) % 80 != 0:
-                                continue
-                            if ld == '1.00':
-                                line = np.ones(Ns[d].size)
-                            else:
-                                line = eps2*np.ones(Ns[d].size)
+                            line = epsilon*np.ones(Ns[d].size)
                             x = Ns[d]
                             y = np.zeros((len(seeds), x.size))
                             for i, seed in enumerate(seeds):
@@ -57,8 +52,8 @@ def plot_SmbN(path, eps1, eps2, legend, y_axis):
                             my = y.mean(axis=0)
                             sdy = y.std(axis=0)
 
-                            plt.plot(x, my, next(markers), label=r'$d = %s$' % d,
-                                     markersize=3)
+                            plt.plot(x, my, next(markers),
+                                     label=r'$d = %s$' % d, markersize=3)
                             plt.fill_between(x, my - sdy, my + sdy, alpha=0.2)
                         if metric == 'err_angle':
                             plt.plot(x, line, 'k-.')
@@ -76,15 +71,16 @@ def plot_SmbN(path, eps1, eps2, legend, y_axis):
                             label = r'$\tau(\hat\beta, \beta)$'
                             lim = 0.4
                         ax.annotate(r'$N$', xy=(.95, 0), xytext=(18, -5),
-                                    ha='left', va='top', xycoords='axes fraction',
-                                    textcoords='offset points', fontsize=16)
+                                    ha='left', va='top',
+                                    xycoords='axes fraction',
+                                    textcoords='offset points', fontsize=20)
                         if y_axis:
-                            plt.ylabel(label, fontsize=16)
+                            plt.ylabel(label, fontsize=20)
                         plt.xscale('log')
                         plt.ylim(0, lim)
                         plt.grid()
                         if legend:
-                            plt.legend(loc='upper right', fontsize=16)
+                            plt.legend(loc='upper right', fontsize=20)
                         plt.tight_layout()
                         plt.savefig(path+'../Syn-mbN-%s-%s-%s-%s-%s.pdf'
                                     % (metric, ld, pe, k, method),
@@ -92,7 +88,7 @@ def plot_SmbN(path, eps1, eps2, legend, y_axis):
                         plt.close()
 
 
-def plot_SNbd(path, eps1, eps2, legend, y_axis):
+def plot_SNbd(path, epsilon, legend, y_axis):
     """
     Plot minimum N that achieves epsilon by d
     """
@@ -113,10 +109,6 @@ def plot_SNbd(path, eps1, eps2, legend, y_axis):
             for ld in lds:
                 if ld not in ['0.005', '0.100', '1.000']:
                     continue
-                if float(ld) == 1:
-                    epsilon = eps1
-                else:
-                    epsilon = eps2
                 min_N = np.zeros(len(ds))
                 for j, d in enumerate(ds):
                     y = np.zeros((len(seeds), size))
@@ -130,14 +122,14 @@ def plot_SNbd(path, eps1, eps2, legend, y_axis):
                 label = r'$\lambda_d = %s$' % ld
                 plt.plot(x, min_N, next(markers), label=label, markersize=3)
             if legend:
-                plt.legend(loc='upper right', fontsize=16)
+                plt.legend(loc='upper right', fontsize=20)
             plt.grid()
             if y_axis:
-                plt.ylabel(r'$N$', fontsize=16)
+                plt.ylabel(r'$N$', fontsize=20)
             plt.ylim(0, 30500)
             ax.annotate(r'$d$', xy=(.95, 0), xytext=(18, -5),
                         ha='left', va='top', xycoords='axes fraction',
-                        textcoords='offset points', fontsize=16)
+                        textcoords='offset points', fontsize=20)
             plt.tight_layout()
             plt.savefig(path+'../Syn-Nbd-%.2f-%s-%s.pdf'
                         % (epsilon, pe, k),
@@ -145,7 +137,7 @@ def plot_SNbd(path, eps1, eps2, legend, y_axis):
             plt.close()
 
 
-def plot_SNbld(path, eps1, eps2, legend, y_axis):
+def plot_SNbld(path, epsilon, legend, y_axis):
     """
     Plot minimum N that achieves epsilon by lambda d
     """
@@ -168,10 +160,6 @@ def plot_SNbld(path, eps1, eps2, legend, y_axis):
                     continue
                 min_N = np.zeros(len(lds))
                 for j, ld in enumerate(lds):
-                    if float(ld) == 1:
-                        epsilon = eps1
-                    else:
-                        epsilon = eps2
                     y = np.zeros((len(seeds), size))
                     for i, seed in enumerate(seeds):
                         value = results[seed][ld][pe][d][k]['1']['err_angle']
@@ -183,14 +171,14 @@ def plot_SNbld(path, eps1, eps2, legend, y_axis):
                 label = r'$d = %s$' % d
                 plt.plot(x, min_N, next(markers), label=label, markersize=3)
             if legend:
-                plt.legend(loc='upper right', fontsize=16)
+                plt.legend(loc='upper right', fontsize=20)
             plt.grid()
             if y_axis:
-                plt.ylabel(r'$N$', fontsize=16)
+                plt.ylabel(r'$N$', fontsize=20)
             plt.ylim(0, 30500)
             ax.annotate(r'$\lambda_d$', xy=(.95, 0), xytext=(18, -5),
                         ha='left', va='top', xycoords='axes fraction',
-                        textcoords='offset points', fontsize=16)
+                        textcoords='offset points', fontsize=20)
             plt.tight_layout()
             plt.savefig(path+'../Syn-Nbld-%.2f-%s-%s.pdf'
                         % (epsilon, pe, k),
@@ -202,11 +190,10 @@ if __name__ == '__main__':
     parser = ArgumentParser(description='Run synthetic experiments.')
     parser.add_argument('-l', type=int)
     parser.add_argument('-y', type=int)
-    parser.add_argument('-eps', type=float, default=0.3,
-                        help='Epsilon val for ld=1.')
+    parser.add_argument('-eps', type=float, default=0.3)
     args = parser.parse_args()
 
     home_path = str(Path.home())
-    plot_SmbN(home_path + '/Res-Synth/', args.eps, args.eps, args.l, args.y)
-    plot_SNbd(home_path + '/Res-Synth/', args.eps, args.eps, args.l, args.y)
-    plot_SNbld(home_path + '/Res-Synth/', args.eps, args.eps, args.l, args.y)
+    plot_SmbN(home_path + '/Res-Synth/', args.eps, args.l, args.y)
+    plot_SNbd(home_path + '/Res-Synth/', args.eps, args.l, args.y)
+    plot_SNbld(home_path + '/Res-Synth/', args.eps, args.l, args.y)
