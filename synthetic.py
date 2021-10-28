@@ -30,9 +30,9 @@ def parse_args():
     parser.add_argument('k', type=int, choices=[1, 2, 3, 4],
                         help='Defines M. 1: N, 2: NloglogN' +
                         ', 3: NlogN, 4: N*sqrt(N).')
-    parser.add_argument('method', type=int, choices=[1, 2],
+    parser.add_argument('method', type=int, choices=[1, 2, 3],
                         help='Beta estimation method. 1: averaging, ' +
-                        '2: logistic regression.')
+                        '2: logistic regression, 3: RABF-LOG')
     args = parser.parse_args()
     return args
 
@@ -73,9 +73,9 @@ if __name__ == "__main__":
     for i, N in enumerate(Ns):
         M = Ms[i]
         # Sample data
-        X, XC, yn, y = get_data(N, M, beta, f_mean, f_cov, alpha)
+        X1, X2, u, v, XC, yn = get_data(N, M, beta, f_mean, f_cov, alpha)
         # Estimate beta
-        e_beta = estimate_beta(X, XC, yn, method)
+        e_beta = estimate_beta(X1, u, v, XC, yn, method)
         # Calculate error of beta
         err_angle, err_norm = beta_error(e_beta, beta, method, e_c1)
         # Test e_beta on new data for kendall tau

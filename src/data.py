@@ -16,10 +16,10 @@ def get_data(N, M, beta, f_mean, f_cov, alpha):
     Labels are generated with Bradley Terry model.
     """
     # Data for covariance estimation
-    X = np.random.multivariate_normal(f_mean, f_cov, N)
+    X1 = np.random.multivariate_normal(f_mean, f_cov, N)
 
     # Data for comparisons
-    X1 = np.random.multivariate_normal(f_mean, f_cov, N)
+    X2 = np.random.multivariate_normal(f_mean, f_cov, N)
 
     # Uniformly at random edges
     # Choices with repetition
@@ -29,7 +29,7 @@ def get_data(N, M, beta, f_mean, f_cov, alpha):
 
     # An edge from u to v implies v beats u
     # Comparison features
-    XC = X1[v] - X1[u]
+    XC = X2[v] - X2[u]
 
     # beta^T(X-Y)
     scores = XC @ beta
@@ -39,13 +39,13 @@ def get_data(N, M, beta, f_mean, f_cov, alpha):
     urv = np.random.rand(M)
     # BTL Labels
     yn = np.sign(p - urv)
-    # True labels
-    y = np.sign(scores)
 
-    if y.size > 5:
+    if yn.size > 5:
+        # True labels
+        y = np.sign(scores)
         print('Error ratio is %.3f' % (np.sum(yn != y)/y.size))
 
-    return X, XC, yn, y
+    return X1, X2, u, v, XC, yn
 
 
 def read_sushi_data(path):
