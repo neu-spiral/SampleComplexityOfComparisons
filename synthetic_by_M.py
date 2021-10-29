@@ -27,9 +27,9 @@ def parse_args():
     parser.add_argument('d', type=int, help='Dimensionality.')
     parser.add_argument('N', type=int, help='N number of nodes.')
     parser.add_argument('M', type=int, help='Largest M.')
-    parser.add_argument('method', type=int, choices=[1, 2],
+    parser.add_argument('method', type=int, choices=[1, 2, 3],
                         help='Beta estimation method. 1: averaging, ' +
-                        '2: logistic regression.')
+                        '2: logistic regression, 3: RABF-LOG')
     args = parser.parse_args()
     return args
 
@@ -68,18 +68,18 @@ if __name__ == "__main__":
     t0 = time()
     for M in Ms:
         # Sample data
-        X, XC, yn, y = get_data(N, M, beta, f_mean, f_cov, alpha)
+        X1, X2, u, v, XC, yn = get_data(N, M, beta, f_mean, f_cov, alpha)
         # Estimate beta
-        e_beta = estimate_beta(X, XC, yn, method)
+        e_beta = estimate_beta(X1, u, v, XC, yn, method)
         # Calculate error of beta
         err_angle, err_norm = beta_error(e_beta, beta, method, e_c1)
         # Test e_beta on new data for kendall tau
-        test_X, _, _, _ = get_data(500, 1, beta, f_mean, f_cov, alpha)
+        test_X, _, _, _, _, _ = get_data(500, 1, beta, f_mean, f_cov, alpha)
         scores = test_X @ beta
         e_scores = test_X @ e_beta
         kt_dist = kt_distance(scores, e_scores)
         # Print and save results
-        print('ld:%.3f|d:%3i|N:%6i| M:%6i | Ang:%.3f | Norm:%.3f | KT:%.3f'
+        print('ld:%.3f | d:%3i | N:%6i | M:%6i | Ang:%.3f | Norm:%.3f | KT:%.3f'
               % (ld, d, N, M, err_angle, err_norm, kt_dist))
         results[M]['err_angle'] = err_angle
         results[M]['err_norm'] = err_norm
