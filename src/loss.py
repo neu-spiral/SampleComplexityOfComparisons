@@ -22,7 +22,7 @@ def beta_error(e_beta, beta, method, e_c1):
         err_beta = np.linalg.norm(e_beta - e_c1*beta)
     # else logistic
     else:
-        err_beta = np.linalg.norm(e_beta - beta)
+        err_beta = e_c1*np.linalg.norm(e_beta - beta)
 
     return err_angle, err_beta
 
