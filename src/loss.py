@@ -40,7 +40,7 @@ def kt_distance(scores, e_scores):
     num = 0
     denum = 0
     for i in range(N):
-        for j in range(i+1, N):
+        for j in range(N):
             if scores[i] < scores[j]:
                 denum += 1
                 if e_scores[i] > e_scores[j]:
