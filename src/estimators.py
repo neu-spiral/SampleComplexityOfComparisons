@@ -53,24 +53,32 @@ def RABF_LOG(N, u, v, XC, yn):
     yn_valid = yn[M_train:]
 
     valid_results = {}
-    lambda_w = np.logspace(-6, 3, 5)
-    lambda_r = np.logspace(-6, 3, 5)
+    lambda_w = np.logspace(-6, 3, 3)
+    lambda_r = np.logspace(-6, 3, 3)
+    
+    x = np.random.randn(N+d)
 
     for lw in lambda_w:
         for lr in lambda_r:
-            loss = lambda x: RABF_loss(x, d, u_train, v_train, XC_train, yn_train, lw, lr)
-            grad = lambda x: RABF_grad(x, d, u_train, v_train, XC_train, yn_train, lw, lr)
+            loss = lambda inp: RABF_loss(inp, d, u_train, v_train, XC_train, yn_train, lw, lr)
+            grad = lambda inp: RABF_grad(inp, d, u_train, v_train, XC_train, yn_train, lw, lr)
 
-            x0 = np.random.randn(N+d)
-            res = minimize(loss, x0, method='L-BFGS-B', jac=grad)
+            res = minimize(loss, x, method='L-BFGS-B', jac=grad)
             x = res.x
             e_beta = x[:d]
             e_scores = x[d:]
             e_yn = np.sign(e_scores[v_valid] - e_scores[u_valid] + XC_valid@e_beta)
             accuracy = np.sum(e_yn == yn_valid)/yn_valid.size
-            print(accuracy)
             valid_results[(lw, lr)] = accuracy
 
+    lw, lr = max(valid_results, key=valid_results.get)
+    loss = lambda inp: RABF_loss(inp, d, u, v, XC, yn, lw, lr)
+    grad = lambda inp: RABF_grad(inp, d, u, v, XC, yn, lw, lr)
+
+    res = minimize(loss, x, method='L-BFGS-B', jac=grad)
+    x = res.x
+    e_beta = x[:d]
+ 
     return e_beta
 
 def RABF_loss(x, d, u, v, XC, yn, lw, lr):
@@ -80,10 +88,8 @@ def RABF_loss(x, d, u, v, XC, yn, lw, lr):
     e_beta = x[:d]
     e_scores = x[d:]
     loss = lw*e_beta@e_beta + lr*e_scores@e_scores
-
-    for i in range(XC.shape[0]):
-        loss += np.log(1 + np.exp(-yn[i]*(e_scores[v[i]] - e_scores[u[i]] + e_beta@XC[i])))
-
+    loss += np.log(1 + np.exp(-yn*(e_scores[v] - e_scores[u] + XC@e_beta))).sum()
+    
     return loss
 
 def RABF_grad(x, d, u, v, XC, yn, lw, lr):

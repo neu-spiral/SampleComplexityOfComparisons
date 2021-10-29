@@ -43,7 +43,7 @@ def get_data(N, M, beta, f_mean, f_cov, alpha):
     if yn.size > 5:
         # True labels
         y = np.sign(scores)
-        print('Error ratio is %.3f' % (np.sum(yn != y)/y.size))
+        # print('Error ratio is %.3f' % (np.sum(yn != y)/y.size))
 
     return X1, X2, u, v, XC, yn
 
