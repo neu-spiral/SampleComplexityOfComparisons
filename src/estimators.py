@@ -53,8 +53,8 @@ def RABF_LOG(N, u, v, XC, yn):
     yn_valid = yn[M_train:]
 
     valid_results = {}
-    lambda_w = np.logspace(-6, 3, 3)
-    lambda_r = np.logspace(-6, 3, 3)
+    lambda_w = np.logspace(-6, 3, 4)
+    lambda_r = np.logspace(-6, 3, 4)
     
     x = np.random.randn(N+d)
 
@@ -103,12 +103,12 @@ def RABF_grad(x, d, u, v, XC, yn, lw, lr):
     grad[:d] += 2*lw*e_beta
     grad[d:] += 2*lr*e_scores
 
-    for i in range(XC.shape[0]):
-        exp = np.exp(-yn[i]*(e_scores[v[i]]-e_scores[u[i]]+e_beta@XC[i]))
-        scale = exp/(1+exp)
-        grad[:d] += -scale*yn[i]*XC[i]
-        grad[d + v[i]] += -scale*yn[i]
-        grad[d + u[i]] += scale*yn[i]
+    exp = np.exp(-yn*(e_scores[v]-e_scores[u] + XC@e_beta))
+    scale = exp/(1+exp)
+    grad[:d] += -((scale*yn)[:, None]*XC).sum(0)
+    for i in range(yn.size):
+        grad[d + v[i]] += -scale[i]*yn[i]
+        grad[d + u[i]] += scale[i]*yn[i]
 
     return grad
 

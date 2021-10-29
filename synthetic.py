@@ -79,7 +79,7 @@ if __name__ == "__main__":
         # Calculate error of beta
         err_angle, err_norm = beta_error(e_beta, beta, method, e_c1)
         # Test e_beta on new data for kendall tau
-        test_X, _, _, _ = get_data(500, 1, beta, f_mean, f_cov, alpha)
+        test_X, _, _, _, _, _ = get_data(500, 1, beta, f_mean, f_cov, alpha)
         scores = test_X @ beta
         e_scores = test_X @ e_beta
         kt_dist = kt_distance(scores, e_scores)
