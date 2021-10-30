@@ -16,14 +16,14 @@ def plot_SmbM(path, legend, y_label):
     Assumes all experiments are finished
     and all results are saved.
     """
-    seeds, lds, pes, ds, Ns, Ms, methods, _, results = \
+    seeds, lds, pes, ds, Ns, Ms, methods, metrics, results = \
         read_results_synth_by_M(path)
     ds.sort(key=float)
 
     markers_list = ['x-', 's--', '^-.', 'o:']
 
     plt.rc('font', family='serif')
-    for metric in ['err_norm', 'err_angle']:
+    for metric in metrics:
         for method in methods:
             for ld in lds:
                 if ld not in ['0.005', '1.000']:
@@ -33,7 +33,7 @@ def plot_SmbM(path, legend, y_label):
                     markers = cycle(markers_list)
                     _, ax = plt.subplots()
                     for d in ds:
-                        if d not in ['10', '90', '250']:
+                        if d not in ['10', '100']:
                             continue
                         N = Ns[d]
                         M = Ms[d]
@@ -58,7 +58,10 @@ def plot_SmbM(path, legend, y_label):
                             label = r'$||\hat\beta - \beta||$'
                     elif metric == 'err_angle':
                         lim = 1.5
-                        label = r'$\angle (\hat\beta, \beta)$'
+                        label = r'$\angle(\hat\beta, \beta)$'
+                    else:
+                        lim = 0.5
+                        label = r'$\tau(\hat\beta, \beta)$'
                     ax.annotate(r'$M$', xy=(.95, 0), xytext=(15, -5),
                                 ha='left', va='top', xycoords='axes fraction',
                                 textcoords='offset points', fontsize=20)

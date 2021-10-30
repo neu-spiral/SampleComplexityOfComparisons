@@ -27,19 +27,19 @@ def plot_SmbN(path, epsilon, legend, y_axis):
     markers_list = ['x-', 's--', '^-.', 'o:']
 
     for metric in metrics:
-        if metric == 'kt_dist':
-            continue
         for method in methods:
             for k in ks:
                 for ld in lds:
                     if ld not in ['0.005', '1.000']:
                         continue
                     for pe in pes:
+                        if pe not in ['0.0', '0.4']:
+                            continue
                         # Now in the same figure
                         markers = cycle(markers_list)
                         _, ax = plt.subplots()
                         for d in ds:
-                            if d not in ['10', '90', '250']:
+                            if d not in ['10', '100']:
                                 continue
                             # Remove some d here
                             # So that the plot is not dense
@@ -66,7 +66,7 @@ def plot_SmbN(path, epsilon, legend, y_axis):
                             if method == '1':
                                 label = r'$||\hat\beta - c_1\beta||$'
                             elif method == '2':
-                                label = r'$||\hat\beta - \beta||$'
+                                label = r'$c_1||\hat\beta - \beta||$'
                             lim = 4
                         else:
                             label = r'$\tau(\hat\beta, \beta)$'
@@ -108,7 +108,7 @@ def plot_SNbd(path, epsilon, legend, y_axis):
             _, ax = plt.subplots()
             markers = cycle(markers_list)
             for ld in lds:
-                if ld not in ['0.005', '0.100', '1.000']:
+                if ld not in ['0.005', '1.000']:
                     continue
                 min_N = np.zeros(len(ds))
                 for j, d in enumerate(ds):
@@ -157,7 +157,7 @@ def plot_SNbld(path, epsilon, legend, y_axis):
             _, ax = plt.subplots()
             markers = cycle(markers_list)
             for d in ds:
-                if d not in ['10', '90', '250']:
+                if d not in ['10', '100']:
                     continue
                 min_N = np.zeros(len(lds))
                 for j, ld in enumerate(lds):

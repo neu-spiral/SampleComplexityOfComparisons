@@ -10,7 +10,7 @@ do
             do
                 for k in 3
                 do
-                    for method in 1
+                    for method in 1 3
                     do
                         sbatch --job-name=$seed${ld:(-2)}$d$k$method --output=z.out --error=z.err single.bash $seed $ld $pe $d 100 1000 $k $method
                     done
