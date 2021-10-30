@@ -56,18 +56,16 @@ def plot_SmbN(path, epsilon, legend, y_axis):
                             plt.plot(x, my, next(markers),
                                      label=r'$d = %s$' % d, markersize=3)
                             plt.fill_between(x, my - sdy, my + sdy, alpha=0.2)
+                        plt.plot(x, line, 'k-.')
                         if metric == 'err_angle':
-                            plt.plot(x, line, 'k-.')
                             label = r'$\angle(\hat\beta, \beta)$'
-                            lim = 1.5
+                            lim = 2
                         elif metric == 'err_norm':
-                            if ld != '1.000':
-                                plt.plot(x, line, 'k-.')
                             if method == '1':
                                 label = r'$||\hat\beta - c_1\beta||$'
-                            elif method == '2':
+                            else:
                                 label = r'$c_1||\hat\beta - \beta||$'
-                            lim = 4
+                            lim = 2
                         else:
                             label = r'$\tau(\hat\beta, \beta)$'
                             lim = 0.4
@@ -93,7 +91,8 @@ def plot_SNbd(path, epsilon, legend, y_axis):
     """
     Plot minimum N that achieves epsilon by d
     """
-    seeds, lds, pes, ds, Ns, _, ks, _, _, results = read_results_synth(path)
+    seeds, lds, pes, ds, Ns, _, ks, methods, metrics, results = \
+        read_results_synth(path)
     size = len(Ns[ds[0]])
     lds.sort(key=float)
     ds.sort(key=float)
@@ -127,7 +126,7 @@ def plot_SNbd(path, epsilon, legend, y_axis):
             plt.grid()
             if y_axis:
                 plt.ylabel(r'$N$', fontsize=20)
-            plt.ylim(0, 30500)
+            plt.ylim(0, 1000)
             ax.annotate(r'$d$', xy=(.95, 0), xytext=(18, -5),
                         ha='left', va='top', xycoords='axes fraction',
                         textcoords='offset points', fontsize=20)
