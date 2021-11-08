@@ -131,7 +131,7 @@ def plot_SNbd(path, legend, y_axis):
                     label = r'$\lambda_d = %s$' % ld
                     plt.plot(x, min_N, next(markers), label=label, markersize=3)
                 if legend:
-                    plt.legend(loc='upper right', fontsize=20)
+                    plt.legend(loc='upper left', fontsize=20)
                 plt.grid()
                 if y_axis:
                     plt.ylabel(r'$N$', fontsize=20)
