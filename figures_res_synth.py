@@ -63,7 +63,7 @@ def plot_SmbN(path, legend, y_axis):
                         if metric == 'err_angle':
                             plt.plot(x, line, 'k-.')
                             label = r'$\angle(\hat\beta, \beta)$'
-                            lim = 2
+                            lim = 1.5
                         elif metric == 'err_norm':
                             if method == '1':
                                 label = r'$||\hat\beta - c_1\beta||$'

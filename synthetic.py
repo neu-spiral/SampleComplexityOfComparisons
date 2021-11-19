@@ -69,13 +69,14 @@ if __name__ == "__main__":
 
     # This for can be run embarrasingly parallel.
     # But I'm embarrassingly lazy to do that.
-    t0 = time()
     for i, N in enumerate(Ns):
         M = Ms[i]
         # Sample data
         X1, X2, u, v, XC, yn = get_data(N, M, beta, f_mean, f_cov, alpha)
         # Estimate beta
+        t0 = time()
         e_beta = estimate_beta(X1, u, v, XC, yn, method)
+        duration = time() - t0
         # Calculate error of beta
         err_angle, err_norm = beta_error(e_beta, beta, method, e_c1)
         # Test e_beta on new data for kendall tau
@@ -89,6 +90,7 @@ if __name__ == "__main__":
         results[N]['err_angle'] = err_angle
         results[N]['err_norm'] = err_norm
         results[N]['kt_dist'] = kt_dist
+        results[N]['duration'] = duration
     results['seed'] = args.seed
     results['ld'] = ld
     results['pe'] = pe
@@ -99,4 +101,3 @@ if __name__ == "__main__":
     results['Ms'] = Ms
     # Save results to disk
     save_results(results, args, 'synth')
-    print('Finished in %.2f seconds.' % (time() - t0))
