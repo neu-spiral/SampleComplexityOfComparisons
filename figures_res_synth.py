@@ -70,9 +70,12 @@ def plot_SmbN(path, legend, y_axis):
                             else:
                                 label = r'$c_1||\hat\beta - \beta||$'
                             lim = 2
-                        else:
+                        elif metric == 'kt_dist':
                             label = r'$\tau(\hat\beta, \beta)$'
                             lim = 0.4
+                        else:
+                            label = 'Duration'
+
                         ax.annotate(r'$N$', xy=(.95, 0), xytext=(18, -5),
                                     ha='left', va='top',
                                     xycoords='axes fraction',
@@ -200,6 +203,89 @@ def plot_SNbld(path, legend, y_axis):
                 plt.close()
 
 
+def plot_SmbNcomp(path, legend, y_axis):
+    """
+    Plot synthetic metrics as a function of N.
+    Keep all methods in the same figure.
+
+    Assumes all experiments are finished
+    and all results are saved.
+
+    Plots synthetic results as
+    N by metrics(d) for each ld, k, method, metric
+    """
+    seeds, lds, pes, ds, Ns, _, ks, methods, metrics, results = \
+        read_results_synth(path)
+    ds.sort(key=float)
+
+    plt.rc('font', family='serif')
+    markers_list = ['x-', 's--', '^-.', 'o:']
+
+    for metric in metrics:
+        for k in ks:
+            for ld in lds:
+                if ld not in ['0.005', '1.000']:
+                    continue
+                for pe in pes:
+                    if pe not in ['0.0', '0.4']:
+                        continue
+                    # Now in the same figure
+                    markers = cycle(markers_list)
+                    _, ax = plt.subplots()
+                    for d in ds:
+                        if d not in ['100']:
+                            continue
+                        for method in methods:
+                            x = Ns[d]
+                            y = np.zeros((len(seeds), x.size))
+                            for i, seed in enumerate(seeds):
+                                y[i] = results[seed][ld][pe][d][k][
+                                    method][metric]
+                            # Mean and std of metrics
+                            my = y.mean(axis=0)
+                            sdy = y.std(axis=0)
+
+                            if method == '1':
+                                mname = 'Our method'
+                            elif method == '3':
+                                mname = 'RABF-log'
+
+                            plt.plot(x, my, next(markers),
+                                     label=r'%s' % mname, markersize=3)
+                            plt.fill_between(x, my - sdy, my + sdy, alpha=0.2)
+                        if metric == 'err_angle':
+                            label = r'$\angle(\hat\beta, \beta)$'
+                            lim = 1.5
+                        elif metric == 'err_norm':
+                            if method == '1':
+                                label = r'$||\hat\beta - c_1\beta||$'
+                            else:
+                                label = r'$c_1||\hat\beta - \beta||$'
+                            lim = 2
+                        elif metric == 'kt_dist':
+                            label = r'$\tau(\hat\beta, \beta)$'
+                            lim = 0.4
+                        else:
+                            label = 'Duration'
+
+                        ax.annotate(r'$N$', xy=(.95, 0), xytext=(18, -5),
+                                    ha='left', va='top',
+                                    xycoords='axes fraction',
+                                    textcoords='offset points', fontsize=20)
+                        if y_axis:
+                            plt.ylabel(label, fontsize=20)
+                        plt.xscale('log')
+                        plt.ylim(0, lim)
+                        plt.grid()
+                        if legend:
+                            plt.legend(loc='upper right', fontsize=20)
+                        plt.tight_layout()
+                        plt.savefig(path+'../Syn-mbNcomp-%s-%s-%s.pdf'
+                                    % (metric, ld, pe),
+                                    format='pdf', transparent=True)
+                        plt.close()
+
+
 if __name__ == '__main__':
     parser = ArgumentParser(description='Run synthetic experiments.')
     parser.add_argument('-l', type=int)
@@ -210,3 +296,4 @@ if __name__ == '__main__':
     plot_SmbN(home_path + '/Res-Synth/', args.l, args.y)
     plot_SNbd(home_path + '/Res-Synth/', args.l, args.y)
     plot_SNbld(home_path + '/Res-Synth/', args.l, args.y)
+    plot_SmbNcomp(home_path + '/Res-Synth/', args.l, args.y)
