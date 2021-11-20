@@ -43,8 +43,8 @@ def read_results_synth(path):
     return in a dict
     """
     # Hard code metrics
-    metrics = ['err_angle', 'err_norm', 'kt_dist']
-    # metrics = ['err_angle', 'err_norm', 'kt_dist', 'duration']
+    # metrics = ['err_angle', 'err_norm', 'kt_dist']
+    metrics = ['err_angle', 'err_norm', 'kt_dist', 'duration']
     # Files in given path
     files = listdir(path)
     # IF ANY FILES ARE TO BE SKIPPED, ADD LINES HERE.

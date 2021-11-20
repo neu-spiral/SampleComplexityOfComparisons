@@ -267,6 +267,7 @@ def plot_SmbNcomp(path, legend, y_axis):
                             lim = 0.4
                         else:
                             label = 'Duration'
+                            lim = 250
 
                         ax.annotate(r'$N$', xy=(.95, 0), xytext=(18, -5),
                                     ha='left', va='top',
