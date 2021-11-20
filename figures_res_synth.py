@@ -217,6 +217,7 @@ def plot_SmbNcomp(path, legend, y_axis):
     seeds, lds, pes, ds, Ns, _, ks, methods, metrics, results = \
         read_results_synth(path)
     ds.sort(key=float)
+    methods.sort(key=float)
 
     plt.rc('font', family='serif')
     markers_list = ['x-', 's--', '^-.', 'o:']
@@ -256,18 +257,22 @@ def plot_SmbNcomp(path, legend, y_axis):
                         if metric == 'err_angle':
                             label = r'$\angle(\hat\beta, \beta)$'
                             lim = 1.5
+                            plt.yscale('linear')
                         elif metric == 'err_norm':
                             if method == '1':
                                 label = r'$||\hat\beta - c_1\beta||$'
                             else:
                                 label = r'$c_1||\hat\beta - \beta||$'
                             lim = 2
+                            plt.yscale('linear')
                         elif metric == 'kt_dist':
                             label = r'$\tau(\hat\beta, \beta)$'
                             lim = 0.4
+                            plt.yscale('linear')
                         else:
                             label = 'Duration'
-                            lim = 250
+                            plt.yscale('log')
+                            lim = 1000
 
                         ax.annotate(r'$N$', xy=(.95, 0), xytext=(18, -5),
                                     ha='left', va='top',
